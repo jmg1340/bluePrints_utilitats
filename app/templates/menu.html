@@ -1,0 +1,66 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+<script>
+  $( document ).ready(function() {
+    console.log("document preparat 2")
+    $("#idPwd").val("1234")
+
+    
+    $("form").on("submit", function(e){
+      e.preventDefault()
+
+      const pwd = $("#idPwd").val()
+      console.log("pwd", pwd)
+
+      $.ajax({
+        method: "POST",
+        url: "/",
+        dataType: "json",
+        contentType: 'application/json',
+        data: JSON.stringify({ pwd: $("#idPwd").val() })
+      })
+      .done(function( response ) {
+        if (response.pwdValid){
+          window.location.href = "/pings"
+        } else {
+          console.log(response.missatge)
+          $("#missatge")
+          .css('opacity', 1)
+          .html(response.missatge)
+          .css( "color", "orange")
+          .fadeTo(3000, 0)
+        }
+
+      })
+      .fail(function( e ) {
+        console.log( "ERROR", JSON.stringify(e))
+        alert( "HI HA HAGUT UN ERROR: " + e );
+      });
+
+
+    })
+  
+  
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row justify-content-md-center">
+  <div class="col col-2">
+    <a type="button" class="btn btn-warning" href="/pings">
+      <i class="fa fa-podcast"></i>
+      PINGS
+    </a>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
