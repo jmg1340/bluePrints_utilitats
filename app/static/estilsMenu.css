@@ -1,0 +1,14 @@
+
+
+.recuadre {
+	height: 200px;
+	width: 100px;
+	border: 3px solid red;
+	vertical-align: baseline;
+}
+
+.recuadre a {
+	height: 100%;
+	width: 100%;
+	vertical-align: middle;
+}

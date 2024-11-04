@@ -33,6 +33,9 @@ def create_app():
     from bp_pings import pings
     app.register_blueprint(pings)
 
+    from bp_perfilsNFS import perfils
+    app.register_blueprint(perfils)
+
 
 
   @app.route('/menu')
