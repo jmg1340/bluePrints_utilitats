@@ -21,7 +21,7 @@
 	  console.log("usuari:", user)
       console.log("Servidor:", srv)
       
-      $("#resposta").html( "" )
+      $("#resposta").html( "treballant..." )
 
       $.ajax({
         method: "POST",
@@ -51,44 +51,47 @@
 
 {% block content %}
 
-<div class="container">
 	
-	<div class="text-center">
-		<h1>ELIMINACIO PERFILS als NFS</h1>
-	</div>
-	
-	<div class="row mt-5" style="height: 400px;">
-		<div class="col border-right">
-			<div class="mt-5 mb-5">
-				NOTA: Al linux ha d'haver instalat el paquet: </br>
-				<ul class="text-danger fw-bolder">
-					<li>SSHPASS</li>
-					<!--<li>SCP</li>-->
-				</ul>
-			</div>
-			
-			<div class="input-group mb-3">
-			  <span class="input-group-text" id="basic-addon1">
-				<i class="fa fa-user"></i>
-			  </span>
-			  <input id="user" type="text" class="form-control" placeholder="numero treballador" aria-label="Username" aria-describedby="basic-addon1">
-			</div>
-					
-			<div class="mt-5">
-			  <div class="">
-				<button class="btn btn-primary" type="button" id="nfs1">Eliminar perfil de NFS1 (192.168.10.4)</button>
-			  </div>
-			  <div class="mt-2">
-				<button class="btn btn-primary" type="button" id="nfs2">Eliminar perfil de NFS2 (192.168.10.5)</button>
-			  </div>
+<div class="text-center">
+	<h3>ELIMINACIÓ PERFIL als NFS</h3>
+</div>
 
+<div class="row mt-5 " style="height: 400px;">
+	<div class="col border-right mb-5">
+		<div class="mb-5">
+			NOTA: Al linux ha d'haver instal·lat el paquet: </br>
+			<ul class="text-danger fw-bolder">
+				<li>SSHPASS</li>
+				<!--<li>SCP</li>-->
+			</ul>
+		</div>
+		
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1">
+			<i class="fa fa-user"></i>
+			</span>
+			<input id="user" type="text" class="form-control" placeholder="numero treballador" aria-label="Username" aria-describedby="basic-addon1">
+		</div>
+				
+		<div class="mt-5">
+			<div class="">
+			<button class="btn btn-primary" type="button" id="nfs1">Eliminar perfil de NFS1 (192.168.10.4)</button>
 			</div>
+			<div class="mt-2">
+			<button class="btn btn-primary" type="button" id="nfs2">Eliminar perfil de NFS2 (192.168.10.5)</button>
+			</div>
+
 		</div>
-		<div class="col" id="resposta">
-			(Resposta del servidor)
-		</div>
-	
 	</div>
+	<div class="col" >
+		<div class="font-weight-bold border-bottom">
+			Resposta del servidor:
+		</div>
+		<div class="mt-3" id="resposta">
+			&nbsp;
+		</div>
+	</div>
+
 </div>
 
 

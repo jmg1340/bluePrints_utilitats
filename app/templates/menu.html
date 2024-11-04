@@ -13,22 +13,19 @@
 
 <link rel="stylesheet" href={{ url_for('static', filename='estilsMenu.css') }}>
 
-<div class="row justify-content-md-center">
-  <div class="col recuadre">
-    <a type="button" class="btn btn-warning" href="/pings">
-      <div style="font-size:30px; vertical-align: middle;">
-		  <i class="fa fa-podcast"></i>
-		  <span>PINGS</span> 
-      </div>
-      
+<div class="row justify-content-center g-3">
+  <!-- <div class="col recuadre"> -->
+    <a type="button" class="col btn btn-warning recuadreBotons" href="/pings">
+		  <i class="fa fa-podcast mr-4"></i>
+		  PINGS
     </a>
-  </div>
-  <div class="col recuadre">
-    <a type="button" class="btn btn-warning" href="/perfilsNFS">
-      <i class="fa fa-user"></i>
+  <!-- </div> -->
+  
+    <a type="button" class="col btn btn-warning recuadreBotons" href="/perfilsNFS">
+      <i class="fa fa-user mr-4"></i>
       Eliminar perfils NFS
     </a>
-  </div>
+  
 </div>
 
 

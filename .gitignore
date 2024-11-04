@@ -16,6 +16,4 @@ instance/
 *.csv
 
 # excepte següents fitxers csv
-!GestorTorns.csv
-!impresoras.csv
-!switchs.csv
+!proves.csv
