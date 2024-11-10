@@ -1,0 +1,19 @@
+
+
+# carpeta per a virtualització d'entorn
+/.env/
+
+# carpetes __pycache__
+/**/__pycache__/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+
+
+#ignorar fitxers csv
+*.csv
+
+# excepte següents fitxers csv
+!proves.csv

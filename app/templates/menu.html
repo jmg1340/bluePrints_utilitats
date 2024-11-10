@@ -1,0 +1,42 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+<script>
+  $( document ).ready(function() {
+	console.log("Estic a menu.html")
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" href={{ url_for('static', filename='estilsMenu.css') }}>
+
+<div class="row justify-content-center g-3">
+  <!-- <div class="col recuadre"> -->
+    <a type="button" class="col btn btn-warning recuadreBotons" href="/pings">
+		  <i class="fa fa-podcast mr-4"></i>
+		  PINGS
+    </a>
+  <!-- </div> -->
+
+  <a type="button" class="col btn btn-warning recuadreBotons" href="/perfilsNFS">
+    <i class="fa fa-user mx-2"></i>
+    Eliminar perfils NFS
+  </a>
+  <a type="button" class="col btn btn-warning recuadreBotons" href="/infoEstacio">
+    <i class="fa fa-desktop mx-2"></i>
+    Info estació plataforma
+  </a>
+
+</div>
+
+
+
+
+{% endblock %}
+
+
+
+

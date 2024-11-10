@@ -1,0 +1,131 @@
+{% extends "plantillaBase.html" %}
+{% block content %}
+
+<!-- Socket io -->
+<script src={{ url_for('static', filename='js/socket.io.min.js') }}></script>
+
+
+<script>
+$( document ).ready(function() {
+
+  const socket = io();
+  // console.log( "socket", socket )
+
+  $("#seleccionar").on( "change", function(event) {
+    
+    // eliminació de les files de la taula
+    $("#taula tbody").empty();
+    $('#totalTR').html('0')
+    
+    let fitxerSeleccionat = $( "#seleccionar option:selected" ).val()
+    $.get( "/carregarTaula?fitxer="+fitxerSeleccionat, function( jsonData ) {
+      // console.log( jsonData ); // HTML content of the jQuery.ajax page
+      arrDadesFitxer = jsonData.llista
+      arrDadesFitxer.forEach(element => {
+        $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+'</td><td>&nbsp;</td></tr>')
+      });
+
+      let totalFiles = $('#taula tbody tr').length
+      $('#totalTR').html( totalFiles )
+      
+      $("#btnStart").prop("disabled", false);
+    });
+
+  })
+
+
+  
+  
+  $("#btnStart").on( "click", function() {
+    socket.emit('arranca_pings');
+    $(this).prop("disabled", true);
+    $("#btnStop").prop("disabled", false);
+    $("#seleccionar").prop("disabled", true);
+    
+  })
+  
+  
+  
+  $("#btnStop").on( "click", function() {
+    socket.emit('parar_pings');
+    $(this).prop("disabled", true);
+    $("#btnStart").prop("disabled", false);
+    $("#seleccionar").prop("disabled", false);
+  })
+  
+  $( window ).on( "beforeunload", function() {
+    // alert( "event UNDOLAD!!" )
+    // console.log( "event UNLOAD" )
+    socket.emit('parar_pings');
+} );
+  
+  $("#btnStop").prop("disabled", true);
+  $("#btnStart").prop("disabled", true);  
+
+  socket.on('connect', function(){
+    
+    socket.on('recepcioDades', function(dadesRebudes) {
+        console.log("dadesRebudes", dadesRebudes )
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').html(dadesRebudes.valor)
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("background-color", (dadesRebudes.valor == 'KO') ? 'red' : 'white')
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("color", (dadesRebudes.valor == 'KO') ? 'white' : 'black')
+    })
+
+  })
+
+
+  socket.on('pingsAturats', function(txt) {
+    console.log(txt)
+  });
+
+
+
+
+
+});  
+</script>
+
+
+
+
+<div class='row mb-3'>
+  <div class='col'>
+    <select id="seleccionar" class="form-control" >
+      <option disabled selected value> -- seleccionar una opció -- </option>
+      <option value="proves">PROVES</option>
+      <option value="switchs">Switchs</option>
+      <option value="impresoras">Impresores</option>
+      <option value="GestorTorns">Gestor de Torns</option>
+    </select>
+  </div>
+  <div class='col'>
+    <button id="btnStart" type="button" class="btn btn-success">Start</button>
+    <button id="btnStop" type="button" class="btn btn-danger">Stop</button>
+  </div>
+</div>
+
+
+
+<table class="table table-sm" id="taula">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">IP/nom</th>
+      <th scope="col">Descripció</th>
+      <th scope="col">Connexió</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+
+<!-- Registres: {{ items|count }}. -->
+Registres: <span id="totalTR"></span>
+
+
+
+
+
+
+{% endblock %}

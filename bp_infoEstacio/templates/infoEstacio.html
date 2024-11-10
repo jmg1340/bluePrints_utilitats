@@ -1,0 +1,312 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+<script>
+  $( document ).ready(function() {
+    console.log("document InfoEstacio preparat")
+
+		cmdSeleccionat = null
+
+    $("#btnInfo").on("click", function(){
+
+			$("#resposta").html( "treballant..." )
+
+			var $checked = $('input[name="grup1"]').filter(function() {
+				return $(this).prop('checked');
+			});
+
+			cmdSeleccionat = $checked.val()
+			console.log(cmdSeleccionat);
+
+			switch ( cmdSeleccionat ) {
+				case "ps aux | grep -i 'xxx'":
+					$("#feTitol").html("Nom del procés a filtrar:")
+					$("#feResposta").val("")
+					$('#idFinestraEmergent').modal('show');
+					break
+				case "kill xxx":
+					$("#feTitol").html("PID del procés a matar:")
+					$("#feResposta").val("")
+					$('#idFinestraEmergent').modal('show');
+					break
+				default:
+					enviarCmd( cmdSeleccionat)
+			}
+		})
+		
+
+
+		$("#idBtnFE").on("click", function(){
+			if ( $("#feResposta").val() !== "" ) {
+				cmdSeleccionat = cmdSeleccionat.replace("xxx", $("#feResposta").val())
+				$('#idFinestraEmergent').modal('hide');
+				console.log(cmdSeleccionat);
+				console.log("----------------")
+				enviarCmd( cmdSeleccionat)
+			}
+
+		})
+
+		const enviarCmd = function( cmd ){
+      $.ajax({
+        method: "POST",
+        url: "/getInfoEstacio",
+        dataType: "json",
+        contentType: 'application/json',
+        data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
+      })
+      .done(function( response ) {
+				console.log("response", response)
+				// response.missatge = response.missatge.replace('\n', '<br/><br/>')
+				// response.missatge = response.missatge.replace(' ', '&nbsp;')
+        $("#resposta").html( response.missatge )
+
+      })
+      .fail(function( e ) {
+        console.log( "ERROR", JSON.stringify(e))
+        alert( "HI HA HAGUT UN ERROR: " + e );
+      });
+		}
+ 
+  
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row mt-4 " style="height: 400px;">
+	<div class="col col-4 border-right">
+	
+		
+		<!-- IP O HOSTNAME -->
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1">
+			<i class="fa fa-desktop"></i>
+			</span>
+			<input id="hostname" type="text" class="form-control" placeholder="IP o hostname" aria-label="Username" aria-describedby="basic-addon1">
+			<div class="input-group-append">
+				<button class="btn btn-primary" type="button" id="btnInfo">Info</button>
+			</div>
+		</div>
+
+		
+		<!-- RADIO BUTTONS -->
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="hostname" aria-label="Radio button for following text input" checked>
+				</div>
+			</div>
+			<div class="form-control">Hostname</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="ifconfig eth0" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Configuració ethernet</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="ethtool eth0" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Velocitat MBPS</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="dmidecode -t bios" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Info BIOS</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="dmidecode -t system" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Info SISTEMA</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="dmidecode -t processor" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Info PROCESSADOR</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="dmidecode -t memory" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Info MODULS MEMÒRIA</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="free" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">ús de la memòria</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="uptime" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Temps que porta encès el host</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="dmesg" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">missatges del "kernel ring buffer"</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="less /var/log/kern.log" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Logs del KERNEL</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="netstat -punta" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Ports oberts</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="ps auxf" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Tots els PROCESSOS oberts</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="ps aux | grep -i 'xxx'" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Filtrar procés per nom</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="kill xxx" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Matar procés pel seu PID</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="shutdown now -r" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">REINICIAR (Linux)</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="shutdown now" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">APAGAR (Linux)</div>
+		</div>
+
+
+
+
+
+
+		<div class="mt-5">
+			<div class="">
+			
+			</div>
+		</div>
+	</div>
+	<div class="col" >
+		<div class="font-weight-bold border-bottom">
+			Resposta del servidor:
+		</div>
+		<div class="mt-3" id="resposta" style="font-size: 10px;font-family:'Courier New', Courier, monospace">
+			&nbsp;
+		</div>
+	</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="idFinestraEmergent" tabindex="-1" role="dialog" aria-labelledby="finestraEmergentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="feTitol"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="basic-addon1">
+					<i class="fa fa-question"></i>
+					</span>
+					<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1">
+				</div>				
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
+        <button id="idBtnFE" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
