@@ -27,17 +27,20 @@ def create_app():
     # app.socketioApp = socketioApp
 
     # ----- registre de BLUEPRINTS -----
-    from bp_login import login
+    from app.bp_login import login
     app.register_blueprint(login)
 
-    from bp_pings import pings
+    from app.bp_pings import pings
     app.register_blueprint(pings)
 
-    from bp_perfilsNFS import perfils
+    from app.bp_perfilsNFS import perfils
     app.register_blueprint(perfils)
 
-    from bp_infoEstacio import info_estacio
+    from app.bp_infoEstacio import info_estacio
     app.register_blueprint(info_estacio)
+
+    from app.bp_swPortMac import swPM
+    app.register_blueprint(swPM)
 
 
 

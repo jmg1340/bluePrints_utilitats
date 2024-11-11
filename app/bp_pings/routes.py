@@ -37,7 +37,7 @@ def carregarTaula():
   print( 'rutaApp', rutaApp )
   
   try:
-    with open( rutaApp + '/static/' + fitxer + '.csv', newline='' ) as f:
+    with open( rutaApp+'/../static/' + fitxer + '.csv', newline='' ) as f:
       reader = csv.reader(f)
       for row in reader:
         llistaHosts.append(row)
@@ -74,7 +74,8 @@ def carregarTaula():
 @socketioApp.on('arranca_pings')
 def ejecutarPings():
 	print( "\n*** ARRANCA PINGS ***\n" )
-    
+	global event
+
 	event.clear()  # event = False
 	global llistaHosts
 	
@@ -90,32 +91,23 @@ def doPings( host, index_fila, event ):
 	#print( "app.app_context", app.app_context() )
 	# global socketioApp
 	swResposta = ""
-	horaInici = ""
-
 	
 	socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "Inici pings..."})
 
 	while True:
 		respostaTF = true_false_ping( host ) 
 		print( "Fila", index_fila, "respostaTF", respostaTF )
-		#with app.test_request_context('arranca_pings'):
 
 		if respostaTF != swResposta:
-			# datahora = str(datetime.now())[:-7]
 			if respostaTF:
-				#print( 'respostaTF', respostaTF )
-				socketEmes = ""
 				socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "OK"}) 
-				#print( socketEmes )
 			else:
-				
 				socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "KO"})
 
-
+		print( "event.is_set() :  ", event.is_set())
 		if event.is_set():
-			
+			print("S'ATURA AQUESTA TAREA")
 			socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': ""})
-
 			break
 
 		swResposta = respostaTF
@@ -139,9 +131,13 @@ def true_false_ping (adress):
 
 @socketioApp.on('parar_pings')
 def pararPings():
+		print("ESTIC A PARAR PINGS")
 		global socketioApp
+		global event
 		event.set()  # event = True
-		socketioApp.emit('pingsAturats', "S'ha donat ordre d'aturada de pings")
+		
+		print( "event.is_set() :  ", event.is_set())
+		socketioApp.emit('pingsAturats', f"S'ha donat oooordre d'aturada de pings. EVENT.IS_SET = {event.is_set()}")
 
 
 

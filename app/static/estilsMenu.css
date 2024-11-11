@@ -2,7 +2,7 @@
 
 .recuadreBotons {
 	height: 200px;
-	width: 200px;
+	max-width: 300px;
 	display: flex;
 	align-items: center;
 	justify-content: center;

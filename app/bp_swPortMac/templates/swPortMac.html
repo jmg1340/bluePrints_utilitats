@@ -1,0 +1,129 @@
+{% extends "plantillaBase.html" %}
+{% block content %}
+
+<!-- Socket io -->
+<script src={{ url_for('static', filename='js/socket.io.min.js') }}></script>
+
+
+<script>
+$( document ).ready(function() {
+
+  const socket = io();
+
+  // CARREGA LA LLISTA DE SWITCHS
+  $.get( "/carregarSwitchs", function( jsonData ) {
+    // console.log( jsonData ); // HTML content of the jQuery.ajax page
+    arrDadesFitxer = jsonData.llista
+    arrDadesFitxer.forEach(element => {
+      $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+'</td><td>&nbsp;</td></tr>')
+    });
+
+    let totalFiles = $('#taula tbody tr').length
+    $('#totalTR').html( totalFiles )
+    
+  });
+
+
+
+
+ 
+  $("#btnBuscar").on( "click", function() {
+    
+    // Informacio VENDOR
+
+    $.get( "/getVendor?mac="+$("#txtBuscar").val(), function( infoVendor ) {
+      console.log( infoVendor ); 
+      // infoVendor = jsonData.llista
+
+      $('#idVendor').html( infoVendor )
+    });
+
+
+
+    // INICI PROCÉS DE BÚSQUEDA
+    $("#pendent").html( "" )
+    socket.emit('buscar_mac', $("#txtBuscar").val() )
+    // $(this).prop("disabled", true);
+   
+  })
+  
+
+  
+  $( window ).on( "beforeunload", function() {
+    socket.emit('parar_busqueda');
+  });
+  
+
+
+  socket.on('connect', function(){
+    
+    socket.on('recepcioDades', function(dadesRebudes) {
+        console.log("dadesRebudes", dadesRebudes )
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').html(dadesRebudes.text)
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("background-color", dadesRebudes.colorBg)
+        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("color", dadesRebudes.colorTxt)
+    })
+
+    socket.on('tasquesPendents', function(info) {
+        $("#pendent").html( info )
+    })
+
+  })
+
+
+
+});  
+</script>
+
+
+
+
+<div class="row">
+  <div class="col input-group mb-3 w-50">
+    <span class="input-group-text" id="basic-addon1">
+      <div>MAC:</div>
+    <!-- <i class="fa fa-desktop"></i> -->
+    </span>
+    <input id="txtBuscar" type="text" class="form-control" placeholder="xx:xx:xx:xx:xx:xx" aria-label="Username" aria-describedby="basic-addon1">
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="button" id="btnBuscar">Buscar</button>
+    </div>
+  </div>
+  <div class="col text-right">
+    <div id="pendent">
+      
+    </div> 
+  </div>
+</div>
+
+  
+
+
+<div>
+  Vendor: <span id="idVendor" class="text-danger text-bold"></span>
+</div>
+
+
+<table class="table table-sm" id="taula">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Ip SW</th>
+      <th scope="col">Nom SW</th>
+      <th scope="col">Resultat</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+
+<!-- Registres: {{ items|count }}. -->
+Registres: <span id="totalTR"></span>
+
+
+
+
+
+
+{% endblock %}
