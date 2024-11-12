@@ -22,7 +22,7 @@ $( document ).ready(function() {
       // console.log( jsonData ); // HTML content of the jQuery.ajax page
       arrDadesFitxer = jsonData.llista
       arrDadesFitxer.forEach(element => {
-        $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+'</td><td>&nbsp;</td></tr>')
+        $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+ (element[2]!=undefined ? (': '+element[2]) : '') +' </td><td>&nbsp;</td></tr>')
       });
 
       let totalFiles = $('#taula tbody tr').length
@@ -92,10 +92,14 @@ $( document ).ready(function() {
   <div class='col'>
     <select id="seleccionar" class="form-control" >
       <option disabled selected value> -- seleccionar una opció -- </option>
-      <option value="proves">PROVES</option>
-      <option value="switchs">Switchs</option>
+      <!-- <option value="proves">PROVES</option> -->
+      <option value="servidors">SERVIDORS</option>
+      <option value="switchs">SWITCHS</option>
       <option value="impresoras">Impresores</option>
       <option value="GestorTorns">Gestor de Torns</option>
+      <option value="antenesDECT">Antenes DECT</option>
+      <option value="CP8811">Telèfons CP8811</option>
+      <option value="CP6901">Telèfons CP6901</option>
     </select>
   </div>
   <div class='col'>

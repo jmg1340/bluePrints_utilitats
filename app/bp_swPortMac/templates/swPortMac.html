@@ -15,7 +15,7 @@ $( document ).ready(function() {
     // console.log( jsonData ); // HTML content of the jQuery.ajax page
     arrDadesFitxer = jsonData.llista
     arrDadesFitxer.forEach(element => {
-      $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+'</td><td>&nbsp;</td></tr>')
+      $('#taula tbody').append('<tr><td>'+element[0]+'</td><td>'+element[1]+': '+ (element[2]!=undefined ? element[2] : '') +'</td><td>&nbsp;</td></tr>')
     });
 
     let totalFiles = $('#taula tbody tr').length
@@ -29,8 +29,23 @@ $( document ).ready(function() {
  
   $("#btnBuscar").on( "click", function() {
     
+    if ( !$("#txtBuscar").val() ){
+      $("#pendent")
+      .html( "Potser que posis alguna mac abans...")
+      .css( "color", "red")
+      .css( "font-weight", "bold")
+      .fadeTo(3000, 0, function(){
+        $("#pendent")
+        .css( "color", "black")
+        .css( "opacity", '1')
+        .css( "font-weight", "bold")
+        .html( "")
+      })
+      return
+    }
+    
+    
     // Informacio VENDOR
-
     $.get( "/getVendor?mac="+$("#txtBuscar").val(), function( infoVendor ) {
       console.log( infoVendor ); 
       // infoVendor = jsonData.llista
@@ -100,7 +115,7 @@ $( document ).ready(function() {
 
 
 <div>
-  Vendor: <span id="idVendor" class="text-danger text-bold"></span>
+  Vendor: <span id="idVendor" class="text-danger font-weight-bold"></span>
 </div>
 
 

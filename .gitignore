@@ -3,6 +3,42 @@
 # carpeta per a virtualització d'entorn
 /.env/
 
+
+Cache/
+CachedData/
+CachedExtensionVSIXs/
+CachedProfilesData/
+Code Cache/
+Cookies
+Cookies-journal
+Crashpad/
+DawnGraphiteCache/
+DawnWebGPUCache/
+Dictionaries/
+GPUCache/
+Local Storage/
+Network Persistent State
+Preferences
+Service Worker/
+Session Storage/
+Shared Dictionary/
+SharedStorage
+SharedStorage-wal
+TransportSecurity
+Trust Tokens
+Trust Tokens-journal
+User/
+WebStorage/
+code.lock
+languagepacks.json
+logs/
+machineid
+
+
+
+
+
+
 # carpetes __pycache__
 /**/__pycache__/
 

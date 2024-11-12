@@ -20,10 +20,16 @@ def feliminarPerfil():
 	print( "estic a POST de perfilsNFS")
 	dadesFormulari = request.get_json() 
 	# print("dadesFormulari", dadesFormulari)
+	user = dadesFormulari['user']
+	srv = dadesFormulari['srv']
 	print("dadesFormulari['user']", dadesFormulari['user'])
 	print("dadesFormulari['srv']", dadesFormulari['srv'])
 	
-	return { "missatge": eliminar( dadesFormulari['user'], dadesFormulari['srv'] ) }
+	if ( user ):
+		return { "missatge": eliminar( user, srv ) }
+	else:
+		return { "missatge": "Falta informar usuari"}
+	
 
 
 

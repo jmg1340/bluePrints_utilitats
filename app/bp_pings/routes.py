@@ -92,7 +92,7 @@ def doPings( host, index_fila, event ):
 	# global socketioApp
 	swResposta = ""
 	
-	socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "Inici pings..."})
+	socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "Iniciant pings..."})
 
 	while True:
 		respostaTF = true_false_ping( host ) 
@@ -104,7 +104,7 @@ def doPings( host, index_fila, event ):
 			else:
 				socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': "KO"})
 
-		print( "event.is_set() :  ", event.is_set())
+		
 		if event.is_set():
 			print("S'ATURA AQUESTA TAREA")
 			socketioApp.emit('recepcioDades', {'fila': index_fila, 'valor': ""})
