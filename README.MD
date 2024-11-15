@@ -6,23 +6,83 @@ Requeriments **linux** (`apt-get`):
 
 <br/>
 
-Creacio d'entorn virtual (`python3 -m venv <carpeta>`) i activació (`<carpeta>/bin/activate`) per instal·lar **llibreries python** (`pip`):
+Creació d'entorn virtual (`python3 -m venv <carpeta>`) i activació (`<carpeta>/bin/activate`) per instal·lar **llibreries python** (`pip`):
 - flask
 - flask-socketIO
 - requests
+- python-decouple
+
+<br/><br/>
 Per posar en producció:
 - gunicorn
-- eventlet ( per posar app en producció)
+- eventlet 
   
 <br>
 
-**Variables d'entorn** (`export variable=`):
+**Settings al fitxer .env**:
 - APP_SETTINGS_MODULE (DevelopmentConfig / ProductionConfig)
 - PWDASE
 - PWDCOS
   
-
+<br/><br/>
 
 Per posar en producció:
 - canviar APP_SETTINGS_MODULE=ProductionConfig
 - executar `gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 utilitats:app`
+
+<br/><br/>
+---
+
+
+## [Create a systemd service script for running Gunicorn to serve your application](https://dev.to/tkirwa/create-a-systemd-service-script-for-running-gunicorn-to-serve-your-application-5aea):
+- `sudo nano /etc/systemd/system/gunicorn.service`
+
+
+<br/><br/>
+
+[Unit]<br/>
+Description=Gunicorn instance to serve application
+After=network.target<br/>
+<br/>
+[Service]<br/>
+User=your_username<br/>
+Group=your_groupname<br/>
+WorkingDirectory=/path/to/your/app<br/>
+Environment="PATH=/path/to/venv/bin"<br/>
+ExecStart=/path/to/venv/bin/gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 utilitats:app<br/>
+ExecReload=/bin/kill -s HUP $MAINPID<br/>
+KillMode=mixed<br/>
+TimeoutStopSec=5<br/>
+PrivateTmp=true<br/>
+<br/>
+[Install]<br/>
+WantedBy=multi-user.target<br/>
+
+<br/><br/>
+
+
+
+
+
+>Reload the systemd manager configuration to make >it aware of the new service file:
+>
+   >`sudo systemctl daemon-reload`<br/><br/>
+>Enable the service to start on boot:
+>
+   >`sudo systemctl enable gunicorn`<br/><br/>
+>Start the service:
+>
+   >`sudo systemctl start gunicorn`<br/><br/>
+>Verify that the service is running without >errors:
+>
+   >`sudo systemctl status gunicorn`<br/><br/>
+>You can also restart, stop, or check the logs of >the service using systemd commands:
+>
+   >`sudo systemctl restart gunicorn`<br/>
+   >`sudo systemctl stop gunicorn`<br/>
+   >`journalctl -u gunicorn`<br/><br/>
+>Finally, test your application to ensure it's >serving content as expected using curl commands >similar to what you mentioned in your >instructions.
+>
+>Remember that the gunicorn.service script must >be tailored to your specific environment and >application setup. Make sure to adjust paths, >usernames, and other parameters accordingly.
+>
+>Also, note that systemd services require >administrative privileges to manage. Be sure to >use sudo as needed while performing these steps.

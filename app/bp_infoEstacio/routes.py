@@ -1,5 +1,6 @@
 from flask import render_template, request, session, url_for
 from . import info_estacio
+from decouple import config
 
 import time
 import subprocess
@@ -26,7 +27,10 @@ def fgetInfoEstacio():
 	print("dades['host']", host)
 	
 	try:
-		password = os.getenv("PWDASE")
+		# password = os.getenv("PWDASE")
+		# Del fitxer .env llegim el valor de la calu 'entorn'
+		password = config('PWDASE')
+
 	except:
 		return "*** NO s'ha establert la variable d'entorn PWDASE ***"
 

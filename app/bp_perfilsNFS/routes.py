@@ -1,5 +1,6 @@
 from flask import render_template, request, session, url_for
 from . import perfils
+from decouple import config
 
 import time
 import subprocess
@@ -42,7 +43,10 @@ def eliminar( user, srv ):
 	comandamentVerificacioExistenciaCarpeta = f'ls /export/home/{user}'
 
 	try:
-		password = os.getenv("PWDCOS")
+		# password = os.getenv("PWDCOS")
+
+		# Del fitxer .env llegim el valor de la calu 'entorn'
+		password = config('PWDCOS')
 	except:
 		return "*** NO s'ha establert la variable d'entorn PWDCOS ***"
 
@@ -76,9 +80,9 @@ def eliminar( user, srv ):
 
 
 			if status == 0:
-					return f"\tPERFIL ELIMINAT del servidor {srv}"
+					return f"\tPerfil '{user}' ELIMINAT del servidor {srv}"
 			else:
-					return f"\tNO S'HA POGUT ELIMINAR EL PERFIL del servidor {srv}:\n\n\t{output}"
+					return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:\n\n\t{output}"
 
 	else:
 			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{oProcesCompletat.stdout}"

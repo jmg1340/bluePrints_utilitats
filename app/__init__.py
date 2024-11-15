@@ -3,6 +3,8 @@ from flask_socketio import SocketIO
 import os
 # from routes import *
 import app.configuracioEntorn
+from decouple import config
+
 
 socketioApp = SocketIO()
 
@@ -12,9 +14,13 @@ def create_app():
 
   # ----- configuració ENTORN ------
   # Les opcions de configuracio (SECRET_KEY, DEBUG, ...) les importem d'alguna de les clases de 'configuracioEntorn.py'
-  appSettingsModule = os.getenv("APP_SETTINGS_MODULE")
-  print('--- >> APP_SETTINGS_MODULE:', appSettingsModule)
-  app.config.from_object(f"app.configuracioEntorn.{appSettingsModule}")
+  # appSettingsModule = os.getenv("APP_SETTINGS_MODULE")
+  # print('--- >> APP_SETTINGS_MODULE:', appSettingsModule)
+  # app.config.from_object(f"app.configuracioEntorn.{ appSettingsModule }")
+  
+  # Del fitxer .env llegim el valor de la calu 'entorn'
+  app.config.from_object(f"app.configuracioEntorn.{ config('entorn') }")
+
   #app.config['SECRET_KEY'] = 'secret!'
   print( "configuracio entorn DEBUG: ", app.config['DEBUG'] )
   print( "configuracio entorn SECRET_KEY: ", app.config['SECRET_KEY'] )
