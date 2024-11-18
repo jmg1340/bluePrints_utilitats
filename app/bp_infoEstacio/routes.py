@@ -35,11 +35,9 @@ def fgetInfoEstacio():
 		return { "missatge": "NO s'ha establert PWDASE" }
 
 	ssh_cmd = f"/usr/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {host} '{cmd}'"
+	print("SSH_CMD\n", ssh_cmd)
 	try:
-		resultat = subprocess.run( ssh_cmd , 
-									stdout=subprocess.PIPE,
-									stderr=subprocess.PIPE,
-    								encoding='utf-8')
+		resultat = subprocess.run( ssh_cmd )
 	except subprocess.CalledProcessError as e:
 		return { "missatge": "No s'ha pogut executar el comandament: " }
 	except:

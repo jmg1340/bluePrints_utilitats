@@ -26,11 +26,20 @@ Per posar en producció:
   
 <br/><br/>
 
+A tenir en compte:<br/>
+>Quan utilitzem el servidor de desenvolupament de flask (werkzug)
+
+
 Per posar en producció:
-- canviar APP_SETTINGS_MODULE=ProductionConfig
+- canviar entorn=ProductionConfig al fitxer .env
+- instalar eventlet i gunicorn
 - executar `gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 utilitats:app`
 
 <br/><br/>
+Si tornem a executar `python3 utilitats.py` hem de desinstalar 'eventlet' per a que funcionin bé els sockets. Concretament el 'emit' fet des del servidor.
+
+
+
 ---
 
 
