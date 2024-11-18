@@ -67,7 +67,7 @@ def eliminar( user, srv ):
 	#if output1 == "yes":
 	if oProcesCompletat.returncode == 0:
 
-			comandamentEliminacio = f'rm -rf /export/home/{user}'
+			comandamentEliminacio = f'/usr/bin/rm -rf /export/home/{user}'
 
 			ssh_cmd = f"sshpass -p C0STAISA ssh -p 22 -l root -o StrictHostKeyChecking=no {srv} '{comandamentEliminacio}'"
 			try:

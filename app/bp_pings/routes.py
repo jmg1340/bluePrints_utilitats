@@ -141,3 +141,6 @@ def pararPings():
 
 
 
+# @socketioApp.on_error()        # Handles the default namespace
+# def error_handler(e):
+#     print( f"Error del socket: {e}" )

@@ -62,9 +62,10 @@
         $("#resposta").html( response.missatge )
 
       })
-      .fail(function( e ) {
-        console.log( "ERROR", JSON.stringify(e))
-        alert( "HI HA HAGUT UN ERROR: " + e );
+      .fail(function( obj, textStatus, error ) {
+        console.log( "ERROR", JSON.stringify(error))
+		$("#resposta").html( JSON.stringify(error) )
+        // alert( "HI HA HAGUT UN ERROR: " + textStatus );
       });
 		}
  
@@ -96,7 +97,7 @@
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
 				<div class="input-group-text">
-					<input type="radio" name="grup1" value="hostname" aria-label="Radio button for following text input" checked>
+					<input type="radio" name="grup1" value="/bin/hostname" aria-label="Radio button for following text input" checked>
 				</div>
 			</div>
 			<div class="form-control">Hostname</div>

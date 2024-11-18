@@ -32,11 +32,20 @@ def fgetInfoEstacio():
 		password = config('PWDASE')
 
 	except:
-		return "*** NO s'ha establert la variable d'entorn PWDASE ***"
+		return { "missatge": "NO s'ha establert PWDASE" }
 
-	ssh_cmd = f"sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {host} '{cmd}'"
-	status, output = subprocess.getstatusoutput( ssh_cmd )
+	ssh_cmd = f"/usr/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {host} '{cmd}'"
+	try:
+		resultat = subprocess.run( ssh_cmd , 
+									stdout=subprocess.PIPE,
+									stderr=subprocess.PIPE,
+    								encoding='utf-8')
+	except subprocess.CalledProcessError as e:
+		return { "missatge": "No s'ha pogut executar el comandament: " }
+	except:
+		return { "missatge": "Error intern del servidor" }
 
+	output = resultat.stdout
 	output = output.replace('\n', '<br/>')
 	output = output.replace(' ', '&nbsp;')
  
