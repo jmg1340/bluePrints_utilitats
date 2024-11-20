@@ -34,12 +34,12 @@ def fgetInfoEstacio():
 	except:
 		return { "missatge": "NO s'ha establert PWDASE" }
 
-	ssh_cmd = f"/usr/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {host} '{cmd}'"
+	ssh_cmd = f"/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {host} '{cmd}'"
 	print("SSH_CMD\n", ssh_cmd)
 	try:
-		resultat = subprocess.run( ssh_cmd )
+		resultat = subprocess.run( ssh_cmd, shell=True, capture_output=True, text=True, check=True )
 	except subprocess.CalledProcessError as e:
-		return { "missatge": "No s'ha pogut executar el comandament: " }
+		return {"missatge": f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" }
 	except:
 		return { "missatge": "Error intern del servidor" }
 

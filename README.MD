@@ -13,21 +13,21 @@ Creació d'entorn virtual (`python3 -m venv <carpeta>`) i activació (`<carpeta>
 - python-decouple
 
 <br/><br/>
-Per posar en producció:
+Per posar en producció instalar també:
 - gunicorn
 - eventlet 
   
 <br>
 
 **Settings al fitxer .env**:
-- APP_SETTINGS_MODULE (DevelopmentConfig / ProductionConfig)
+- entorn (DevelopmentConfig / ProductionConfig)
 - PWDASE
 - PWDCOS
   
 <br/><br/>
 
 A tenir en compte:<br/>
->Quan utilitzem el servidor de desenvolupament de flask (werkzug)
+>Quan utilitzem el servidor de desenvolupament de flask (werkzug), desinstalar 'eventlet' sino els 'emits" dels sockets no funcionen
 
 
 Per posar en producció:
@@ -44,6 +44,7 @@ Si tornem a executar `python3 utilitats.py` hem de desinstalar 'eventlet' per a 
 
 
 ## [Create a systemd service script for running Gunicorn to serve your application](https://dev.to/tkirwa/create-a-systemd-service-script-for-running-gunicorn-to-serve-your-application-5aea):
+- `sudo nano /etc/systemd/system/gunicornVariablesEntorn.txt` (copia pega de les variables d'entorn que apareixen a `env`)
 - `sudo nano /etc/systemd/system/gunicorn.service`
 
 
@@ -57,7 +58,8 @@ After=network.target<br/>
 User=your_username<br/>
 Group=your_groupname<br/>
 WorkingDirectory=/path/to/your/app<br/>
-Environment="PATH=/path/to/venv/bin"<br/>
+#Environment="PATH=/path/to/venv/bin"<br/>
+EnvironmentFile=guniconrVariablesEntorn.txt<br/>
 ExecStart=/path/to/venv/bin/gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 utilitats:app<br/>
 ExecReload=/bin/kill -s HUP $MAINPID<br/>
 KillMode=mixed<br/>

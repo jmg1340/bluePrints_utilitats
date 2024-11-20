@@ -116,7 +116,7 @@ def doPings( host, index_fila, event ):
 
 def true_false_ping (adress):
 		reply = subprocess.run(
-			['ping', '-c', '3', adress],
+			['/bin/ping', '-c', '3', adress],
 				stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE,
     		encoding='utf-8'

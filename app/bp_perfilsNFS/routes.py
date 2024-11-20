@@ -40,7 +40,7 @@ def feliminarPerfil():
 def eliminar( user, srv ):
 
 	#comandamentVerificacioExistenciaCarpeta = f'if [ -d /export/home/{user} ] ; then echo "yes" ; else echo "no" ; fi'
-	comandamentVerificacioExistenciaCarpeta = f'ls /export/home/{user}'
+	comandamentVerificacioExistenciaCarpeta = f'/bin/ls /export/home/{user}'
 
 	try:
 		# password = os.getenv("PWDCOS")
@@ -51,40 +51,44 @@ def eliminar( user, srv ):
 		return "*** NO s'ha establert la variable d'entorn PWDCOS ***"
 
 
-	ssh_cmd1 = f"sshpass -p C0STAISA ssh -o StrictHostKeyChecking=no root@{srv} '{comandamentVerificacioExistenciaCarpeta}'"
+	ssh_cmd1 = f"/usr/bin/sshpass -p {password} ssh -o StrictHostKeyChecking=no root@{srv} '{comandamentVerificacioExistenciaCarpeta}'"
 	#ssh_cmd1 = ssh_cmd1.encode('utf-8').strip()
 	#print(ssh_cmd1)
 	try:
 			#status1, output1 = subprocess.getstatusoutput(ssh_cmd1)
-			oProcesCompletat = subprocess.run(ssh_cmd1, shell=True, stdout=None)
+			oProcesCompletat = subprocess.run(ssh_cmd1, shell=True, capture_output=True, text=True, check=True)
 			print(f"oPC.returncode:  {oProcesCompletat.returncode}")
-	except Exception as err:
-			return f"Hi ha hagut un ERROR al VERIFICAR LA EXISTENCIA DE LA CARPETA:\n\n{err} \n\nINSTRUCCIÓ: {ssh_cmd1}"
-	#print( 'status1', status1 )
-	#print( 'output1', output1 )
-
-	#output1 = "yes" if "yes" in output1 else "no"
-	#if output1 == "yes":
-	if oProcesCompletat.returncode == 0:
-
-			comandamentEliminacio = f'/usr/bin/rm -rf /export/home/{user}'
-
-			ssh_cmd = f"sshpass -p C0STAISA ssh -p 22 -l root -o StrictHostKeyChecking=no {srv} '{comandamentEliminacio}'"
-			try:
-					status, output = subprocess.getstatusoutput(ssh_cmd)
-			except Exception as e2:
-					return f"Hi ha hagut un ERROR a l'executar la INSTRUCCIÓ DE BORRAT DE PERFIL:\n\n{e2}"
-
-			#print( 'status', status )
-			#print( 'output', output )
+	except subprocess.CalledProcessError as e:
+		
+		if e.returncode == 2:
+			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{e.stdout}"
+		else:
+			return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]"
+	
+	except:
+		return "Error intern del servidor al verificar perfil"
 
 
-			if status == 0:
-					return f"\tPerfil '{user}' ELIMINAT del servidor {srv}"
-			else:
-					return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:\n\n\t{output}"
 
-	else:
-			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{oProcesCompletat.stdout}"
+	comandamentEliminacio = f'/bin/rm -rf /export/home/{user}'
+	ssh_cmd = f"/usr/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {srv} '{comandamentEliminacio}'"
+	
+	try:
+		oProcesCompletat2 = subprocess.run(ssh_cmd,  shell=True, capture_output=True, text=True, check=True)
+		if oProcesCompletat2.returncode == 0:
+				return f"\tPerfil '{user}' ELIMINAT del servidor {srv}"
+		else:
+				return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:\n\n\t{oProcesCompletat.stdout}"
+
+	except subprocess.CalledProcessError as e:
+		return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" 
+	except:
+		return "Error intern del servidor al eliminar perfil" 
+
+
+
+
+
+
 
 
