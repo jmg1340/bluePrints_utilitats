@@ -63,7 +63,8 @@ def eliminar( user, srv ):
 		if e.returncode == 2:
 			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{e.stdout}"
 		else:
-			return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]"
+			# return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]"
+			return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]"
 	
 	except:
 		return "Error intern del servidor al verificar perfil"
@@ -81,7 +82,8 @@ def eliminar( user, srv ):
 				return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:\n\n\t{oProcesCompletat.stdout}"
 
 	except subprocess.CalledProcessError as e:
-		return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" 
+		# return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" 
+		return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]" 
 	except:
 		return "Error intern del servidor al eliminar perfil" 
 

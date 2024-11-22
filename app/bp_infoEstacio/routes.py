@@ -39,7 +39,8 @@ def fgetInfoEstacio():
 	try:
 		resultat = subprocess.run( ssh_cmd, shell=True, capture_output=True, text=True, check=True )
 	except subprocess.CalledProcessError as e:
-		return {"missatge": f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" }
+		# return {"missatge": f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" }
+		return {"missatge": f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]" }
 	except:
 		return { "missatge": "Error intern del servidor" }
 

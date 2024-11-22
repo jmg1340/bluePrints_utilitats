@@ -102,7 +102,7 @@ def buscaMAC( mac, ipSW, nomSW, index_fila, event ):
 	url = "http://172.31.230.30/asepeyo/check_mk/get_interfaces.php?hostname=" + nomSW + "&hostaddress=" + ipSW
 	
 	for intent in range(1,4):    # 3 intents
-		socketioApp.emit('recepcioDades', {'fila': index_fila, 'text': "Recuperant informació del switch ...", 'colorBg': "lightyellow", "colorText": "black"})
+		socketioApp.emit('recepcioDades', {'fila': index_fila, 'text': f"Recuperant informació del switch ... [ intent {intent}/3 ]", 'colorBg': "lightyellow", "colorText": "black"})
 
 
 		try:    

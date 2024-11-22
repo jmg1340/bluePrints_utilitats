@@ -5,11 +5,18 @@
   $( document ).ready(function() {
     console.log("document InfoEstacio preparat")
 
-		cmdSeleccionat = null
+	$("#hostname").focus()
 
+	cmdSeleccionat = null
     $("#btnInfo").on("click", function(){
 
 			$("#resposta").html( "treballant..." )
+
+			if ( $("#hostname").val().length == 0 ){
+				$("#resposta").html( "Falta informar hostname / IP" )
+				return
+			}
+			
 
 			var $checked = $('input[name="grup1"]').filter(function() {
 				return $(this).prop('checked');
@@ -20,6 +27,7 @@
 
 			switch ( cmdSeleccionat ) {
 				case "ps aux | grep -i 'xxx'":
+					$(".container").attr( "width", "100%" )
 					$("#feTitol").html("Nom del procés a filtrar:")
 					$("#feResposta").val("")
 					$('#idFinestraEmergent').modal('show');
@@ -29,11 +37,17 @@
 					$("#feResposta").val("")
 					$('#idFinestraEmergent').modal('show');
 					break
+				case "ps auxf":
+					$(".container").attr( "width", "100%" )
 				default:
 					enviarCmd( cmdSeleccionat)
 			}
 		})
-		
+
+
+		$('#idFinestraEmergent').on('shown.bs.modal', function () {
+			$('#feResposta').focus();
+		})		
 
 
 		$("#idBtnFE").on("click", function(){
@@ -47,26 +61,35 @@
 
 		})
 
-		const enviarCmd = function( cmd ){
-      $.ajax({
-        method: "POST",
-        url: "/getInfoEstacio",
-        dataType: "json",
-        contentType: 'application/json',
-        data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
-      })
-      .done(function( response ) {
-				console.log("response", response)
-				// response.missatge = response.missatge.replace('\n', '<br/><br/>')
-				// response.missatge = response.missatge.replace(' ', '&nbsp;')
-        $("#resposta").html( response.missatge )
 
-      })
-      .fail(function( obj, textStatus, error ) {
-        console.log( "ERROR", JSON.stringify(error))
-		$("#resposta").html( JSON.stringify(error) )
-        // alert( "HI HA HAGUT UN ERROR: " + textStatus );
-      });
+		$("#tancaFE").on("click", function(){
+			$("#resposta").html( "" )
+		})
+
+
+
+
+
+		const enviarCmd = function( cmd ){
+			$.ajax({
+				method: "POST",
+				url: "/getInfoEstacio",
+				dataType: "json",
+				contentType: 'application/json',
+				data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
+			})
+			.done(function( response ) {
+						console.log("response", response)
+						// response.missatge = response.missatge.replace('\n', '<br/><br/>')
+						// response.missatge = response.missatge.replace(' ', '&nbsp;')
+				$("#resposta").html( response.missatge )
+
+			})
+			.fail(function( obj, textStatus, error ) {
+				console.log( "ERROR", JSON.stringify(error))
+				$("#resposta").html( JSON.stringify(error) )
+				// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+			});
 		}
  
   
@@ -289,7 +312,7 @@
 		<div class="font-weight-bold border-bottom">
 			Resposta del servidor:
 		</div>
-		<div class="mt-3" id="resposta" style="text-wrap: wrap;font-size: 12px;font-family:'Courier New', Courier, monospace">
+		<div class="mt-3" id="resposta" style="overflow-wrap: anywhere;font-size: 12px;font-family:'Courier New', Courier, monospace">
 			&nbsp;
 		</div>
 	</div>
@@ -320,12 +343,12 @@
 					<span class="input-group-text" id="basic-addon1">
 					<i class="fa fa-question"></i>
 					</span>
-					<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1">
+					<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
 				</div>				
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
+        <button id="tancaFE" type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
         <button id="idBtnFE" type="button" class="btn btn-primary">Ok</button>
       </div>
     </div>
