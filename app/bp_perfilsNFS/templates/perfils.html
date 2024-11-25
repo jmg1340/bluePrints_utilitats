@@ -7,31 +7,64 @@
 
 	$("#user").focus()
 
+
+	$("#llistar_nfs1").on("click", function(){
+		llistarPerfils("192.168.10.4")
+	})
     
-    $("#nfs1").on("click", function(){
+    $("#eliminar_nfs1").on("click", function(){
 		eliminarPerfil("192.168.10.4")
 	})
 	
-    $("#nfs2").on("click", function(){
+	$("#llistar_nfs2").on("click", function(){
+		llistarPerfils("192.168.10.5")
+	})
+
+	$("#eliminar_nfs2").on("click", function(){
 		eliminarPerfil("192.168.10.5")
 	})
+	
 
 
 
 	eliminarPerfil = function(srv){
 
-      const user = $("#user").val()
-	  console.log("usuari:", user)
+		const user = $("#user").val()
+		console.log("usuari:", user )
+
+		$("#resposta").html( "treballant..." )
+
+		$.ajax({
+		method: "POST",
+		url: "/eliminarPerfil",
+		dataType: "json",
+		contentType: 'application/json',
+		data: JSON.stringify({ user: user, srv: srv })
+		})
+			.done(function( response ) {
+			console.log("response", response)
+			$("#resposta").html( response.missatge )
+		})
+		.fail(function( e ) {
+			console.log( "ERROR", JSON.stringify(e))
+			alert( "HI HA HAGUT UN ERROR: " + e );
+		});
+	}
+
+
+
+	llistarPerfils = function(srv){
+
       console.log("Servidor:", srv)
       
       $("#resposta").html( "treballant..." )
 
       $.ajax({
         method: "POST",
-        url: "/eliminarPerfil",
+        url: "/llistarPerfils",
         dataType: "json",
         contentType: 'application/json',
-        data: JSON.stringify({ user: user, srv: srv })
+        data: JSON.stringify({ srv: srv })
       })
       .done(function( response ) {
 		console.log("response", response)
@@ -46,7 +79,7 @@
 
     }
   
-  
+
   });  
 </script>
 {% endblock %}
@@ -67,10 +100,16 @@
 				
 		<div class="mt-5">
 			<div class="">
-			<button class="btn btn-primary" type="button" id="nfs1">Eliminar perfil de NFS1 (192.168.10.4)</button>
+				<button class="btn btn-primary" type="button" id="llistar_nfs1">Llistar perfils de NFS1 (192.168.10.4)</button>
 			</div>
-			<div class="mt-2">
-			<button class="btn btn-primary" type="button" id="nfs2">Eliminar perfil de NFS2 (192.168.10.5)</button>
+			<div class="mt-1">
+				<button class="btn btn-danger" type="button" id="eliminar_nfs1">Eliminar perfil de NFS1 (192.168.10.4)</button>
+			</div>
+			<div class="mt-5">
+				<button class="btn btn-primary" type="button" id="llistar_nfs2">Llistar perfils de NFS2 (192.168.10.5)</button>
+			</div>
+			<div class="mt-1">
+				<button class="btn btn-danger" type="button" id="eliminar_nfs2">Eliminar perfil de NFS2 (192.168.10.5)</button>
 			</div>
 
 		</div>

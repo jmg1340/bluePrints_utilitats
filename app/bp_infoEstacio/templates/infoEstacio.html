@@ -10,89 +10,92 @@
 	cmdSeleccionat = null
     $("#btnInfo").on("click", function(){
 
-			$("#resposta").html( "treballant..." )
+		$("#resposta").html( "treballant..." )
 
-			if ( $("#hostname").val().length == 0 ){
-				$("#resposta").html( "Falta informar hostname / IP" )
-				return
-			}
-			
-
-			var $checked = $('input[name="grup1"]').filter(function() {
-				return $(this).prop('checked');
-			});
-
-			cmdSeleccionat = $checked.val()
-			console.log(cmdSeleccionat);
-
-			switch ( cmdSeleccionat ) {
-				case "ps aux | grep -i 'xxx'":
-					$(".container").attr( "width", "100%" )
-					$("#feTitol").html("Nom del procés a filtrar:")
-					$("#feResposta").val("")
-					$('#idFinestraEmergent').modal('show');
-					break
-				case "kill xxx":
-					$("#feTitol").html("PID del procés a matar:")
-					$("#feResposta").val("")
-					$('#idFinestraEmergent').modal('show');
-					break
-				case "ps auxf":
-					$(".container").attr( "width", "100%" )
-				default:
-					enviarCmd( cmdSeleccionat)
-			}
-		})
-
-
-		$('#idFinestraEmergent').on('shown.bs.modal', function () {
-			$('#feResposta').focus();
-		})		
-
-
-		$("#idBtnFE").on("click", function(){
-			if ( $("#feResposta").val() !== "" ) {
-				cmdSeleccionat = cmdSeleccionat.replace("xxx", $("#feResposta").val())
-				$('#idFinestraEmergent').modal('hide');
-				console.log(cmdSeleccionat);
-				console.log("----------------")
-				enviarCmd( cmdSeleccionat)
-			}
-
-		})
-
-
-		$("#tancaFE").on("click", function(){
-			$("#resposta").html( "" )
-		})
-
-
-
-
-
-		const enviarCmd = function( cmd ){
-			$.ajax({
-				method: "POST",
-				url: "/getInfoEstacio",
-				dataType: "json",
-				contentType: 'application/json',
-				data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
-			})
-			.done(function( response ) {
-						console.log("response", response)
-						// response.missatge = response.missatge.replace('\n', '<br/><br/>')
-						// response.missatge = response.missatge.replace(' ', '&nbsp;')
-				$("#resposta").html( response.missatge )
-
-			})
-			.fail(function( obj, textStatus, error ) {
-				console.log( "ERROR", JSON.stringify(error))
-				$("#resposta").html( JSON.stringify(error) )
-				// alert( "HI HA HAGUT UN ERROR: " + textStatus );
-			});
+		if ( $("#hostname").val().length == 0 ){
+			$("#resposta").html( "Falta informar hostname / IP" )
+			return
 		}
+		
+
+		var $checked = $('input[name="grup1"]').filter(function() {
+			return $(this).prop('checked');
+		});
+
+		cmdSeleccionat = $checked.val()
+		console.log(cmdSeleccionat);
+
+		switch ( cmdSeleccionat ) {
+			case "ps aux | grep -i 'xxx'":
+				$(".container").attr( "width", "100%" )
+				$("#feTitol").html("Nom del procés a filtrar:")
+				$("#feResposta").val("")
+				$('#idFinestraEmergent').modal('show');
+				break
+			case "kill xxx":
+				$("#feTitol").html("PID del procés a matar:")
+				$("#feResposta").val("")
+				$('#idFinestraEmergent').modal('show');
+				break
+			case "ps auxf":
+				$(".container").attr( "width", "100%" )
+			default:
+				enviarCmd( cmdSeleccionat)
+		}
+	})
+
+
+	$('#idFinestraEmergent').on('shown.bs.modal', function () {
+		$('#feResposta').focus();
+	})		
+
+
+	$("#idBtnFE").on("click", function(){
+		if ( $("#feResposta").val() !== "" ) {
+			cmdSeleccionat = cmdSeleccionat.replace("xxx", $("#feResposta").val())
+			$('#idFinestraEmergent').modal('hide');
+			console.log(cmdSeleccionat);
+			console.log("----------------")
+			enviarCmd( cmdSeleccionat)
+		}
+
+	})
+
+
+	$("#tancaFE").on("click", function(){
+		$("#resposta").html( "" )
+	})
+
+
+
+
+
+	const enviarCmd = function( cmd ){
+		$.ajax({
+			method: "POST",
+			url: "/getInfoEstacio",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
+		})
+		.done(function( response ) {
+					console.log("response", response)
+					// response.missatge = response.missatge.replace('\n', '<br/><br/>')
+					// response.missatge = response.missatge.replace(' ', '&nbsp;')
+			$("#resposta").html( response.missatge )
+
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR", JSON.stringify(error))
+			$("#resposta").html( JSON.stringify(error) )
+			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+	}
  
   
+
+
+
   });  
 </script>
 {% endblock %}
@@ -107,7 +110,7 @@
 		<!-- IP O HOSTNAME -->
 		<div class="input-group mb-3">
 			<span class="input-group-text" id="basic-addon1">
-			<i class="fa fa-desktop"></i>
+			<i id="vnc" class="fa fa-desktop"></i>
 			</span>
 			<input id="hostname" type="text" class="form-control" placeholder="IP o hostname" aria-label="Username" aria-describedby="basic-addon1">
 			<div class="input-group-append">

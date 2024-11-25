@@ -33,6 +33,19 @@ def feliminarPerfil():
 	
 
 
+@perfils.route('/llistarPerfils', methods=['POST'])
+def fllistarPerfils():
+	print( "estic a POST de perfilsNFS")
+	dadesFormulari = request.get_json() 
+	srv = dadesFormulari['srv']
+	
+	if ( srv ):
+		return { "missatge": llistar( srv ) }
+	else:
+		return { "missatge": "Falta informar el servidor"}
+	
+
+
 
 
 
@@ -71,7 +84,7 @@ def eliminar( user, srv ):
 
 
 
-	comandamentEliminacio = f'/bin/rm -rf /export/home/{user}'
+	comandamentEliminacio = f'/bin/rm -rf /export/home/{user}/'
 	ssh_cmd = f"/usr/bin/sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no {srv} '{comandamentEliminacio}'"
 	
 	try:
@@ -86,6 +99,37 @@ def eliminar( user, srv ):
 		return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]" 
 	except:
 		return "Error intern del servidor al eliminar perfil" 
+
+
+
+
+def llistar( srv ):
+
+	#comandamentVerificacioExistenciaCarpeta = f'if [ -d /export/home/{user} ] ; then echo "yes" ; else echo "no" ; fi'
+	comandamentVerificacioExistenciaCarpeta = f'/bin/ls /export/home/'
+
+	try:
+		# password = os.getenv("PWDCOS")
+
+		# Del fitxer .env llegim el valor de la calu 'entorn'
+		password = config('PWDCOS')
+	except:
+		return "*** NO s'ha establert la variable d'entorn PWDCOS ***"
+
+
+	ssh_cmd1 = f"/usr/bin/sshpass -p {password} ssh -o StrictHostKeyChecking=no root@{srv} '{comandamentVerificacioExistenciaCarpeta}'"
+	#ssh_cmd1 = ssh_cmd1.encode('utf-8').strip()
+	#print(ssh_cmd1)
+	try:
+			#status1, output1 = subprocess.getstatusoutput(ssh_cmd1)
+			oProcesCompletat = subprocess.run(ssh_cmd1, shell=True, capture_output=True, text=True, check=True)
+			return (f"Perfils de {srv}:<br/><br/> {oProcesCompletat.stdout}")
+			
+	except subprocess.CalledProcessError as e:
+		return f"No s'ha pogut llistar els perfils de {srv}: <br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]"
+	
+	except:
+		return "Error intern del servidor al llistar perfils"
 
 
 
