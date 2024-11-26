@@ -48,6 +48,9 @@ def create_app():
     from app.bp_swPortMac import swPM
     app.register_blueprint(swPM)
 
+    from app.bp_portes import portes
+    app.register_blueprint(portes)
+
 
 
   @app.route('/menu')
