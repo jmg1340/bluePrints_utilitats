@@ -11,6 +11,7 @@ Creació d'entorn virtual (`python3 -m venv <carpeta>`) i activació (`<carpeta>
 - flask-socketIO
 - requests
 - python-decouple
+- pymongo
 
 <br/><br/>
 Per posar en producció instalar també:
@@ -38,10 +39,14 @@ Per posar en producció:
 <br/><br/>
 Si tornem a executar `python3 utilitats.py` hem de desinstalar 'eventlet' per a que funcionin bé els sockets. Concretament el 'emit' fet des del servidor.
 
+<br/><br/><br/><br/>
 
+## Mongodb
+> mongoimport --db=NOM_BDD --collection=NOM_COLECCIO --jsonArray --file=NOM_FITXER.json<br/><br/>
+db.createUser({ user:"NOM_USUARI", pwd:"PWD", roles:[] })<br/><br/>
+db.changeUserPassword("NOM_USUARI", "PWD")
 
----
-
+<br/><br/><br/><br/>
 
 ## [Create a systemd service script for running Gunicorn to serve your application](https://dev.to/tkirwa/create-a-systemd-service-script-for-running-gunicorn-to-serve-your-application-5aea):
 - `sudo nano /etc/systemd/system/gunicornVariablesEntorn.txt` (copia pega de les variables d'entorn que apareixen a `env`)
