@@ -1,3 +1,4 @@
+file:///mnt/projecte/app/bp_portes/routes.py {"mtime":1732809110000,"ctime":0,"size":2013,"etag":"3dd49esrp22t","orphaned":false,"typeId":""}
 from flask import render_template, request, session, url_for, jsonify
 from . import portes
 from decouple import config
@@ -31,7 +32,7 @@ def fgetFiltre( ):
 	
 
 	try:
-		usuarisFiltrats = db['persones'].find( {"$or": [ { "nom": { '$regex': txtBuscar, "$options": "i" }}, { "numero":  { '$regex': txtBuscar } } ]},{ "_id": 0, "numero": 1, "nom": 1, "traxs": 1 })
+		usuarisFiltrats = db['persones'].find( {"$or": [ { "nom": { '$regex': txtBuscar, "$options": "i" }}, { "numero":  { '$regex': txtBuscar, "$options": "i" } } ]},{ "_id": 0, "numero": 1, "nom": 1, "traxs": 1 })
 
 		resultat = []
 		for registre in usuarisFiltrats:

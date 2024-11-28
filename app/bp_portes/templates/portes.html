@@ -7,19 +7,29 @@
 	$("#btnBuscar").on("click", function(){
 		$.ajax({
 			method: "POST",
-			url: "/getFiltre",
+			url: "/setFiltre",
 			dataType: "json",
 			contentType: 'application/json',
 			data: JSON.stringify({ txtBuscar: $("#user").val() })
 		})
 		.done(function( response ) {
-			console.log(response.missatge)
+			// console.log("response", response )
+			$("#tableUsers > tbody > tr").remove()
+			response.forEach(function( obj ){ 
+				$("#tableUsers > tbody").append("<tr><td>"+obj["numero"]+"</td><td>"+obj["nom"]+"</td></tr>")
+			});
+			
 		})
 		.fail(function( obj, textStatus, error ) {
 			console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
 			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
 		});
 	})
+
+	// $("#formUser").on("submit", function(){
+	// 	prevent.default()
+	// 	console.log("fomulari submited")
+	// })
 
 
 
@@ -35,20 +45,23 @@
 	
 		
 		<!-- USER-->
-		<div class="input-group mb-3">
-			<span class="input-group-text" id="basic-addon1">
-			<i id="vnc" class="fa fa-user"></i>
-			</span>
-			<input id="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
-			<div class="input-group-append">
-				<button class="btn btn-primary" type="button" id="btnBuscar">
-					<i id="search" class="fa fa-search"></i>
-				</button>
-				<button class="btn btn-success ml-1" type="button" id="btnBuscar">
-					<i id="newUser" class="fa fa-user-plus"></i>
-				</button>
+		<!-- <form id="formUser" method="POST" action="/setFiltre" enctype="application/json"> -->
+			<div class="input-group mb-3">
+				<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
+				<input id="user" name="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
+				<div class="input-group-append">
+					<!-- <button class="btn btn-primary" type="submit" id="btnBuscar">
+						<i id="search" class="fa fa-search"></i>
+					</button> -->
+					<button class="btn btn-primary" type="button" id="btnBuscar">
+						<i id="search" class="fa fa-search"></i>
+					</button>
+					<button class="btn btn-success ml-1" type="button" id="btnBuscar">
+						<i id="newUser" class="fa fa-user-plus"></i>
+					</button>
+				</div>
 			</div>
-		</div>
+		<!-- </form> -->
 
 		<table class="table table-sm" id="tableUsers">
 			<thead class="thead-dark">
@@ -72,6 +85,17 @@
 </div>			
 
 
+
+
+
+
+
+
+
+
+
+
+
 <!--  ********************  POPUP ****************** -->
 <div class="modal fade" id="idFinestraEmergent" tabindex="-1" role="dialog" aria-labelledby="finestraEmergentLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -84,12 +108,12 @@
       </div>
       <div class="modal-body">
 
-				<div class="input-group mb-3">
-					<span class="input-group-text" id="basic-addon1">
-					<i class="fa fa-question"></i>
-					</span>
-					<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
-				</div>				
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1">
+			<i class="fa fa-question"></i>
+			</span>
+			<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
+		</div>				
 
       </div>
       <div class="modal-footer">
