@@ -1,0 +1,141 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+<script>
+  $( document ).ready(function() {
+
+	$("#btnBuscar").on("click", function(){
+		buscarUsuaris()
+	})
+	$("#user").on("keypress", function( event ){
+		if (event.which == 13) buscarUsuaris()
+	})
+
+
+	const buscarUsuaris = function(){
+		$.ajax({
+			method: "POST",
+			url: "/setFiltre",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ txtBuscar: $("#user").val() })
+		})
+		.done(function( response ) {
+			// console.log("response", response )
+			$("#tableUsers > tbody > tr").remove()
+			response.forEach(function( obj ){ 
+				$("#tableUsers > tbody").append("<tr><td>"+obj["numero"]+"</td><td>"+obj["nom"]+"</td></tr>")
+			});
+			
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
+			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+	}
+
+
+	// $("#formUser").on("submit", function(){
+	// 	prevent.default()
+	// 	console.log("fomulari submited")
+	// })
+
+
+
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row mt-4 " style="height: 400px;">
+	<div class="col col-4 border-right">
+	
+		
+		<!-- USER-->
+		<!-- <form id="formUser" method="POST" action="/setFiltre" enctype="application/json"> -->
+			<div class="input-group mb-3">
+				<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
+				<input id="user" name="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
+				<div class="input-group-append">
+					<!-- <button class="btn btn-primary" type="submit" id="btnBuscar">
+						<i id="search" class="fa fa-search"></i>
+					</button> -->
+					<button class="btn btn-primary" type="button" id="btnBuscar">
+						<i id="search" class="fa fa-search"></i>
+					</button>
+					<button class="btn btn-success ml-1" type="button" id="btnBuscar">
+						<i id="newUser" class="fa fa-user-plus"></i>
+					</button>
+				</div>
+			</div>
+		<!-- </form> -->
+
+		<table class="table table-sm" id="tableUsers" style="font-size: 12px; font-family:monospace,'Courier New', Courier">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">Núm</th>
+					<th scope="col">Nom</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for usuari in usuaris %}
+				<tr>
+					<td>{{ usuari.numero }}</td>
+					<td>{{ usuari.nom }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+			
+
+	</div>
+</div>			
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--  ********************  POPUP ****************** -->
+<div class="modal fade" id="idFinestraEmergent" tabindex="-1" role="dialog" aria-labelledby="finestraEmergentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="feTitol"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1">
+			<i class="fa fa-question"></i>
+			</span>
+			<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
+		</div>				
+
+      </div>
+      <div class="modal-footer">
+        <button id="tancaFE" type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
+        <button id="idBtnFE" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
