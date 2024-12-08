@@ -9,9 +9,9 @@ Requeriments **linux** (`apt-get`):
 Creació d'entorn virtual (`python3 -m venv <carpeta>`) i activació (`<carpeta>/bin/activate`) per instal·lar **llibreries python** (`pip`):
 - flask
 - flask-socketIO
+- flask-pymongo
 - requests
 - python-decouple
-- pymongo
 
 <br/><br/>
 Per posar en producció instalar també:
@@ -24,6 +24,7 @@ Per posar en producció instalar també:
 - entorn (DevelopmentConfig / ProductionConfig)
 - PWDASE
 - PWDCOS
+- MONGO_URI
   
 <br/><br/>
 

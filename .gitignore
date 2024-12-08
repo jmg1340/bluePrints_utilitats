@@ -1,7 +1,7 @@
 
 
 # carpeta per a virtualització d'entorn
-/.env/
+/entvirt/
 
 # fitxer secret
 .env

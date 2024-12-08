@@ -1,62 +1,129 @@
-from flask import render_template, request, session, url_for, jsonify
+from flask import render_template, request, session, Response
 from . import portes
 from decouple import config
-import app.bdd as dbase
-import json
+from app import mongo
+from bson import json_util
+from bson.objectid import ObjectId
+import pymongo
 
-db = dbase.connexioBDD()
+
+
+@portes.route('/getTraxs', methods=['GET'])
+def fgetTraxs( ):
+	print( "\n\nestic a GET de getTraxs")
+	
+	try:
+		traxsBSON = mongo.db.traxs.find()
+		traxsBSONtoJSON = json_util.dumps( traxsBSON )
+		print ("\ntraxsBSONtoJSON", traxsBSONtoJSON)
+
+		return Response(
+			traxsBSONtoJSON,
+			mimetype="application/json"
+		)
+
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL OBTENIR TRAXs" )
+		print (e)
+		return { "missatge": "Error al OBTENIR TRAXs" }
+
+
+
 
 @portes.route('/getUsuaris', methods=['GET'])
-def fgetPortes():
+def fgetUsuaris():
 	if "username" in session:
 		try:
-			usuarisRebuts = db['persones'].find()
-			print( "USUARIS REBUTS", usuarisRebuts )
-			return render_template( 'portes.html', titol="Accessos a portes", usuaris = usuarisRebuts )
-		except:
+			usuarisRebutsBSON = mongo.db.persones.find()
+			return render_template( 'usuaris.html', titol="Accessos a portes", usuaris = usuarisRebutsBSON )
+		
+		except pymongo.errors.PyMongoError as e:
 			print ("ERROR SERVIDOR AL LLISTAR TOTS ELS USUARIS" )
+			print (e)
 			return { "missatge": "Error al llistar tots els usuaris" }
+	
 	else:
 		return "Accés prohibit."
 
 	
 
+
+
 @portes.route('/setFiltre', methods=['POST'])
 def fgetFiltre( ):
-	print( "estic a POST de getFiltre")
+	print( "\n\nestic a POST de setFiltre")
 	dades = request.get_json() 
 	# print("dadesFormulari", dadesFormulari)
 	txtBuscar = dades['txtBuscar']
-	print("dades['txtBuscar']:", txtBuscar)
+	print("\ndades['txtBuscar']:", txtBuscar)
 	
 
 	try:
-		usuarisFiltrats = db['persones'].find( {"$or": [ { "nom": { '$regex': txtBuscar, "$options": "i" }}, { "numero":  { '$regex': txtBuscar } } ]},{ "_id": 0, "numero": 1, "nom": 1, "traxs": 1 })
+		usuarisFiltratsBSON = mongo.db.persones.find( {"$or": [ { "nom": { '$regex': txtBuscar, "$options": "i" }}, { "numero":  { '$regex': txtBuscar } } ]})
+		usuarisBSONtoJSON = json_util.dumps( usuarisFiltratsBSON )
+		print ("\nusuarisBSONtoJSON", usuarisBSONtoJSON)
 
-		resultat = []
-		for registre in usuarisFiltrats:
-			print( registre )
-			resultat.append(registre)
-		# print("TOTAL usuaris:", usuarisFiltrats.count() )
-		# print( "Num usuaris filtrats", usuarisFiltrats.count() )
+		return Response(
+			usuarisBSONtoJSON,
+			mimetype="application/json"
+		)
 
-		return resultat
-		# return render_template( 'portes.html', titol="Accessos a portes2", usuaris = usuarisFiltrats )
-		# return usuarisFiltrats
-		# return redirect( url_for("fgetPortes", usuaris = usuarisFiltrats))
-		# return jsonify({'redirect': url_for("getUsuaris", usuaris = usuarisFiltrats )})
-		# return jsonify({'redirect': render_template( 'portes.html', titol="Accessos a portes2", usuaris = usuarisFiltrats )})
-		# return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-
-	except:
-		print ("ERROR SERVIDOR AL FILTRAR USUARIS" )
-		return { "missatge": "Error al filtrar usuaris" }
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL FILTRAR USUARI" )
+		print (e)
+		return { "missatge": "Error al FILTRAR USUARI" }
 
  
 
-# @portes.errorhandler(BadRequest)
-# def handle_bad_request(e):
-# 	return 'bad request!', 400
+
+
+@portes.route('/getUsuari/<id>', methods=['GET'])
+def fgetUsuari( id ):
+	print( "\n\nestic a GET de /getUsuari/<id>")
+	
+
+	try:
+		usuariBSON = mongo.db.persones.find({"_id": ObjectId( id )})
+		usuariBSONtoJSON = json_util.dumps( usuariBSON )
+		print ("\nusuariBSONtoJSON", usuariBSONtoJSON)
+
+		return Response(
+			usuariBSONtoJSON,
+			mimetype="application/json"
+		)
+
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL OBTENIR INFO DE L'USUARI SELECCIONAT" )
+		print (e)
+		return { "missatge": "Error al OBTENIR INFO DE L'USUARI SELECCIONAT" }
+
+
+
+
+
+
+@portes.route('/updateUsuari/<id>', methods=['PUT'])
+def fupdateUsuari( id ):
+	print( "\n\nestic a PUT de /updateUsuari/<id>")
+	dades = request.get_json() 
+	print("\ndades:", dades)
+	
+
+	try:
+		resultatBSON = mongo.db.persones.update_one({"_id": ObjectId( id )}, {"$set": {"numero": dades.numero, "nom": dades.nom, "traxs": dades.traxs}})
+		resultatBSONtoJSON = json_util.dumps( resultatBSON )
+		print ("\nresultatBSONtoJSON", resultatBSONtoJSON)
+
+		return Response(
+			resultatBSONtoJSON,
+			mimetype="application/json"
+		)
+
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL ACTUALITZAR DADES DE L'USUARI" )
+		print (e)
+		return { "missatge": "Error al ACTUALITZAR DADES DE L'USUARI" }
+
 
 
 

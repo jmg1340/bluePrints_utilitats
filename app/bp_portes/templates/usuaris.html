@@ -4,45 +4,169 @@
 <script>
   $( document ).ready(function() {
 
-	$("#btnBuscar").on("click", function(){
-		buscarUsuaris()
-	})
-	$("#user").on("keypress", function( event ){
-		if (event.which == 13) buscarUsuaris()
-	})
-
-
-	const buscarUsuaris = function(){
+		// CREACIO DELS CHECKSBOX DELS TRAX
 		$.ajax({
-			method: "POST",
-			url: "/setFiltre",
-			dataType: "json",
-			contentType: 'application/json',
-			data: JSON.stringify({ txtBuscar: $("#user").val() })
+			method: "GET",
+			url: "/getTraxs",
 		})
 		.done(function( response ) {
-			// console.log("response", response )
-			$("#tableUsers > tbody > tr").remove()
-			response.forEach(function( obj ){ 
-				$("#tableUsers > tbody").append("<tr><td>"+obj["numero"]+"</td><td>"+obj["nom"]+"</td></tr>")
+			console.log("response", response )
+
+			response.forEach(function( obj,index ){ 
+				constuirChecks = `
+				<div class="input-group input-group-sm mb-1">
+					<div class="input-group-prepend ml-3">
+						<div class="input-group-text">
+							<input type="checkbox" value="${obj.lloc}" aria-label="Checkbox for following text input">
+						</div>
+					</div>
+					<div class="ml-3">${obj.lloc}</div>
+				</div>
+				`
+				if (index < 12){
+					$("#checksColumna1").append(constuirChecks)
+				} else {
+					$("#checksColumna2").append(constuirChecks)
+				}
 			});
 			
 		})
 		.fail(function( obj, textStatus, error ) {
 			console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
-			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+
+
+
+		// LLISTAT D'USUARIS i FILTRATGE
+
+		$("#btnBuscar").on("click", function(){
+			buscarUsuaris()
+		})
+
+		$("#user").on("keypress", function( event ){
+			if (event.which == 13) buscarUsuaris()
+		})
+
+
+		const buscarUsuaris = function(){
+			$("#formNumero").val("")
+			$("#formNom").val("")
+			$("#idMongo").html("")
+			$("input:checkbox").prop("checked", false)
+
+			$.ajax({
+				method: "POST",
+				url: "/setFiltre",
+				dataType: "json",
+				contentType: 'application/json',
+				data: JSON.stringify({ txtBuscar: $("#user").val() })
+			})
+			.done(function( response ) {
+				console.log("response", response )
+				$("#tableUsers > tbody > tr").remove()
+				response.forEach(function( obj ){ 
+					constuirTR = `
+					<tr id="${ obj["_id"]["$oid"]}">
+						<td>${ obj["numero"] }</td>
+						<td>${ obj["nom"] }</td>
+						<td></td>
+					</tr>
+					`
+					$("#tableUsers > tbody").append(constuirTR)
+				});
+
+				// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
+				$("#tableUsers tbody tr").on("click", function(){ omplirPartDreta(this) })
+				
+			})
+			.fail(function( obj, textStatus, error ) {
+				console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
+			});
+		}
+
+
+
+
+	// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
+
+	$("#tableUsers tbody tr").on("click", function(){ omplirPartDreta(this) })
+
+	const omplirPartDreta = function (aixo){
+		// fons en blanc de tots els TRs
+		$("#tableUsers tbody tr").css("background-color", "white")
+		$(aixo).css("background-color", "lightgreen")
+		$("input:checkbox").prop("checked", false)
+
+		$.ajax({
+			method: "GET",
+			url: "/getUsuari/"+$(aixo).attr("id"),
+		})
+		.done(function( response ) {
+			response = response[0]
+			console.log("response", response.traxs )
+			
+			$("#formNumero").val( response. numero )
+			$("#formNom").val( response.nom )
+			$("#idMongo").html( response["_id"]["$oid"])
+			response.traxs.forEach( function(trax){
+				$("input[type=checkbox][value='"+trax+"']").prop("checked", true)
+			})
+			
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR al obtenir dades de l'usuari", JSON.stringify(error))
 		});
 	}
 
 
-	// $("#formUser").on("submit", function(){
-	// 	prevent.default()
-	// 	console.log("fomulari submited")
-	// })
+	// BOTO NOU USUARI
+	$("#newUser").on("click", function(){
+		$("#tableUsers tbody tr").css("background-color", "white")
+		$("#formNumero").val("")
+		$("#formNom").val("")
+		$("#idMongo").html("")
+		$("input:checkbox").prop("checked", false)
+	})
 
 
 
-  });  
+
+	// BOTO GUARDAR
+	$("#btnGuardar").on("click", function(){
+		console.log( "ESTIC AL BOTO GUARDAR")
+		console.log( "idMongo:", $("#idMongo").html() )
+		$.ajax({
+			// method: ($("#idMongo").html() == "") ? "POST" : "PUT",
+			// url: ($("#idMongo").html() == "") ? "/newUser" : "/updateUsuari/"+$("#idMongo").html(),
+			method: "PUT",
+			url: "/updateUsuari/"+$("#idMongo").html(),
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ 
+				numero: $("#formNumero").val(),
+				nom: $("#formNom").val(),
+				traxs: function(){
+					let arr=[]
+					$("input[type='checkbox']").each( function(chk){
+						if ( chk.prop("checked") == true ) arr.push(chk.val())
+					})
+					console.log(arr)
+					return arr
+				}(),
+			})
+		})
+		.done(function( response ) {
+			console.log("response", response )
+			
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR al GUARDAR DADES USUARI", JSON.stringify(error))
+		});
+	})
+
+
+
+});  
 </script>
 {% endblock %}
 
@@ -53,37 +177,35 @@
 	<div class="col col-4 border-right">
 	
 		
-		<!-- USER-->
-		<!-- <form id="formUser" method="POST" action="/setFiltre" enctype="application/json"> -->
-			<div class="input-group mb-3">
-				<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
-				<input id="user" name="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
-				<div class="input-group-append">
-					<!-- <button class="btn btn-primary" type="submit" id="btnBuscar">
-						<i id="search" class="fa fa-search"></i>
-					</button> -->
-					<button class="btn btn-primary" type="button" id="btnBuscar">
-						<i id="search" class="fa fa-search"></i>
-					</button>
-					<button class="btn btn-success ml-1" type="button" id="btnBuscar">
-						<i id="newUser" class="fa fa-user-plus"></i>
-					</button>
-				</div>
+		<!-- BUSCADOR USUARIS -->
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
+			<input id="user" name="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
+			<div class="input-group-append">
+				<button class="btn btn-primary" type="button" id="btnBuscar">
+					<i id="search" class="fa fa-search"></i>
+				</button>
+				<button class="btn btn-success ml-1" type="button" id="btnBuscar">
+					<i id="newUser" class="fa fa-user-plus"></i>
+				</button>
 			</div>
-		<!-- </form> -->
+		</div>
 
+		<!-- TAULA AMB LLISTAT D'USUARIS -->
 		<table class="table table-sm" id="tableUsers" style="font-size: 12px; font-family:monospace,'Courier New', Courier">
 			<thead class="thead-dark">
 				<tr>
 					<th scope="col">Núm</th>
 					<th scope="col">Nom</th>
+					<th scope="col"></th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for usuari in usuaris %}
-				<tr>
-					<td>{{ usuari.numero }}</td>
-					<td>{{ usuari.nom }}</td>
+				<tr id="{{ usuari["_id"] }}">
+					<td>{{ usuari["numero"] }}</td>
+					<td>{{ usuari["nom"] }}</td>
+					<td></td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -91,47 +213,47 @@
 			
 
 	</div>
+
+
+
+	<div class="col">
+
+		<div class="row mt-4">
+			<div class="col">
+
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="basic-addon1"> # </span>
+					<input id="formNumero" name="formNumero" type="text" class="form-control" placeholder="Número" aria-label="Username" aria-describedby="basic-addon1">
+				</div>
+						
+			</div>
+			<div class="col">
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
+					<input id="formNom" name="formNom" type="text" class="form-control" placeholder="Nom" aria-label="Username" aria-describedby="basic-addon1">
+				</div>
+			</div>
+			<div class="col-auto">
+				<button class="btn btn-warning" type="button" id="btnGuardar">
+					<i id="search" class="fa fa-save"></i>
+				</button>
+			</div>
+		</div>
+
+
+		<div class="mb-5" style="font-family: 'Courier New', Courier, monospace; font-size:12px">
+			MongoId: <span id="idMongo" class="text-danger"></span>
+		</div>
+		
+		
+		<div class="row">
+			<div class="col" id="checksColumna1"></div>
+			<div class="col" id="checksColumna2"></div>
+		</div>
+		
+	</div>
 </div>			
 
-
-
-
-
-
-
-
-
-
-
-
-
-<!--  ********************  POPUP ****************** -->
-<div class="modal fade" id="idFinestraEmergent" tabindex="-1" role="dialog" aria-labelledby="finestraEmergentLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="feTitol"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-		<div class="input-group mb-3">
-			<span class="input-group-text" id="basic-addon1">
-			<i class="fa fa-question"></i>
-			</span>
-			<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
-		</div>				
-
-      </div>
-      <div class="modal-footer">
-        <button id="tancaFE" type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
-        <button id="idBtnFE" type="button" class="btn btn-primary">Ok</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 {% endblock %}

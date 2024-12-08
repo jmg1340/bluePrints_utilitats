@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, session
 from flask_socketio import SocketIO
+from flask_pymongo import PyMongo
 import os
 # from routes import *
 import app.configuracioEntorn
@@ -7,6 +8,7 @@ from decouple import config
 
 
 socketioApp = SocketIO()
+mongo = PyMongo()
 
 def create_app():
   app = Flask(__name__)
@@ -28,6 +30,7 @@ def create_app():
 
 
   socketioApp.init_app(app)
+  mongo.init_app(app)
 
   with app.app_context():
     # app.socketioApp = socketioApp
