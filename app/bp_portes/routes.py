@@ -83,7 +83,7 @@ def fgetUsuari( id ):
 	
 
 	try:
-		usuariBSON = mongo.db.persones.find({"_id": ObjectId( id )})
+		usuariBSON = mongo.db.persones.find_one({"_id": ObjectId( id )})
 		usuariBSONtoJSON = json_util.dumps( usuariBSON )
 		print ("\nusuariBSONtoJSON", usuariBSONtoJSON)
 
@@ -107,15 +107,16 @@ def fupdateUsuari( id ):
 	print( "\n\nestic a PUT de /updateUsuari/<id>")
 	dades = request.get_json() 
 	print("\ndades:", dades)
-	
 
 	try:
-		resultatBSON = mongo.db.persones.update_one({"_id": ObjectId( id )}, {"$set": {"numero": dades.numero, "nom": dades.nom, "traxs": dades.traxs}})
-		resultatBSONtoJSON = json_util.dumps( resultatBSON )
+		resultatBSON = mongo.db.persones.update_one({"_id": ObjectId( id )}, {"$set": {"numero": dades["numero"], "nom": dades["nom"], "traxs": dades["traxs"]}})
+		print("resultatBSON", resultatBSON)
+		# print("resultatBSON modificats:", str(resultatBSON.raw_result["nModified"]))
+		resultatBSONtoJSON = json_util.dumps( resultatBSON.raw_result )
 		print ("\nresultatBSONtoJSON", resultatBSONtoJSON)
 
 		return Response(
-			resultatBSONtoJSON,
+			json_util.dumps({ "accio": "actualitzar", "resultat": resultatBSONtoJSON }),
 			mimetype="application/json"
 		)
 
@@ -126,7 +127,51 @@ def fupdateUsuari( id ):
 
 
 
+@portes.route('/newUser', methods=['POST'])
+def fnewUser( ):
+	print( "\n\nestic a POST de /newUser")
+	dades = request.get_json() 
+	print("\ndades:", dades)
 
+	try:
+		resultatInsert = mongo.db.persones.insert_one({"numero": dades["numero"], "nom": dades["nom"], "traxs": dades["traxs"]})
+		
+		usuariBSON = mongo.db.persones.find_one({"_id": resultatInsert.inserted_id})
+		usuariBSONtoJSON = json_util.dumps( { "accio": "afegir", "resultat": usuariBSON } )
+		print ("\nusuariBSONtoJSON", usuariBSONtoJSON)
+
+		return Response(
+			usuariBSONtoJSON,
+			mimetype="application/json"
+		)
+
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL CREAR NOU USUARI" )
+		print (e)
+		return { "missatge": "Error al CREAR NOU USUARI" }
+
+
+
+
+@portes.route('/deleteUsuari/<id>', methods=['DELETE'])
+def fdeleteUsuari( id ):
+	print( "\n\nestic a DELETE de /deleteUsuari/<id>")
+
+
+	try:
+		resultatBSON = mongo.db.persones.delete_one({"_id": ObjectId( id )})
+		# resultatBSONtoJSON = json_util.dumps( resultatBSON )
+		# print ("\nresultatBSONtoJSON", resultatBSONtoJSON)
+
+		return Response(
+			str(resultatBSON),
+			mimetype="text/html"
+		)
+
+	except pymongo.errors.PyMongoError as e:
+		print ("ERROR SERVIDOR AL ACTUALITZAR DADES DE L'USUARI" )
+		print (e)
+		return { "missatge": "Error al ACTUALITZAR DADES DE L'USUARI" }
 
 
 

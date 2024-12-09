@@ -10,9 +10,9 @@
 			url: "/getTraxs",
 		})
 		.done(function( response ) {
-			console.log("response", response )
+			// console.log("response", response )
 
-			response.forEach(function( obj,index ){ 
+			response.forEach(function( obj, index ){ 
 				constuirChecks = `
 				<div class="input-group input-group-sm mb-1">
 					<div class="input-group-prepend ml-3">
@@ -67,17 +67,24 @@
 				response.forEach(function( obj ){ 
 					constuirTR = `
 					<tr id="${ obj["_id"]["$oid"]}">
-						<td>${ obj["numero"] }</td>
-						<td>${ obj["nom"] }</td>
-						<td></td>
+						<td class="seleccionable">${ obj["numero"] }</td>
+						<td class="seleccionable">${ obj["nom"] }</td>
+						<td>
+							<button class="btn btn-warning btn-sm ml-1 btnEliminar" type="button" >
+								<i class="fa fa-trash"></i>
+							</button>
+						</td>
 					</tr>
 					`
 					$("#tableUsers > tbody").append(constuirTR)
 				});
 
 				// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
-				$("#tableUsers tbody tr").on("click", function(){ omplirPartDreta(this) })
-				
+				$("#tableUsers tbody tr .seleccionable").on("click", function(){ omplirPartDreta(this) })
+
+				// BOTO ELIMINAR USUARI
+				$(".btnEliminar").on("click", function(){ eliminarUsuari( this ) })
+
 			})
 			.fail(function( obj, textStatus, error ) {
 				console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
@@ -89,20 +96,19 @@
 
 	// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
 
-	$("#tableUsers tbody tr").on("click", function(){ omplirPartDreta(this) })
+	$("#tableUsers tbody tr .seleccionable").on("click", function(){ omplirPartDreta(this) })
 
 	const omplirPartDreta = function (aixo){
 		// fons en blanc de tots els TRs
 		$("#tableUsers tbody tr").css("background-color", "white")
-		$(aixo).css("background-color", "lightgreen")
+		$(aixo).parent().css("background-color", "lightgreen")
 		$("input:checkbox").prop("checked", false)
 
 		$.ajax({
 			method: "GET",
-			url: "/getUsuari/"+$(aixo).attr("id"),
+			url: "/getUsuari/"+$(aixo).parent().attr("id"),
 		})
 		.done(function( response ) {
-			response = response[0]
 			console.log("response", response.traxs )
 			
 			$("#formNumero").val( response. numero )
@@ -133,13 +139,11 @@
 
 	// BOTO GUARDAR
 	$("#btnGuardar").on("click", function(){
-		console.log( "ESTIC AL BOTO GUARDAR")
-		console.log( "idMongo:", $("#idMongo").html() )
+		console.log( "ESTIC AL BOTO GUARDAR" )
+
 		$.ajax({
-			// method: ($("#idMongo").html() == "") ? "POST" : "PUT",
-			// url: ($("#idMongo").html() == "") ? "/newUser" : "/updateUsuari/"+$("#idMongo").html(),
-			method: "PUT",
-			url: "/updateUsuari/"+$("#idMongo").html(),
+			method: ($("#idMongo").html() == "") ? "POST" : "PUT",
+			url: ($("#idMongo").html() == "") ? "/newUser" : "/updateUsuari/"+$("#idMongo").html(),
 			dataType: "json",
 			contentType: 'application/json',
 			data: JSON.stringify({ 
@@ -147,23 +151,65 @@
 				nom: $("#formNom").val(),
 				traxs: function(){
 					let arr=[]
-					$("input[type='checkbox']").each( function(chk){
-						if ( chk.prop("checked") == true ) arr.push(chk.val())
+					$("input[type='checkbox']").each( function(){
+						if ( $(this).prop("checked") == true ) arr.push($(this).val())
 					})
-					console.log(arr)
 					return arr
 				}(),
 			})
 		})
 		.done(function( response ) {
 			console.log("response", response )
-			
+			if (response.accio == "actualitzar"){
+				frase = "Dades actualitzades"
+			} else {
+				$("#idMongo").html(response["resultat"]["_id"]["$oid"])
+				frase = "Usuari afegit"
+			}
+
+			$("#resultatOperacio")
+			.html( frase )
+			.css( "color", "white")
+			.css( "background-color", "green")
+			.css( "font-weight", "bold")
+			.fadeTo(3000, 0, function(){
+				$("#resultatOperacio")
+				.css( "color", "black")
+				.css( "background-color", "white")
+				.css( "opacity", '1')
+				.css( "font-weight", "normal")
+				.html( "")
+      		})
+
 		})
 		.fail(function( obj, textStatus, error ) {
 			console.log( "ERROR al GUARDAR DADES USUARI", JSON.stringify(error))
 		});
 	})
 
+
+
+	// BOTO ELIMINAR USUARI
+	$(".btnEliminar").on("click", function(){ eliminarUsuari( this ) })
+
+	const eliminarUsuari = function( aixo ){
+		console.log( "id a eliminar", $(aixo).parent().parent().attr("id") )
+
+		$.ajax({
+			method: "DELETE",
+			url: "/deleteUsuari/"+$(aixo).parent().parent().attr("id")
+		})
+		.done(function( response ) {
+			console.log("response", response )
+			// $("#idMongo").html("")
+			$(aixo).parent().parent().remove("tr")
+			
+		})
+		.fail( function( obj, textStatus, error ) {
+			console.log( "ERROR al ELIMINAR USUARI", JSON.stringify(error))
+		})
+
+	}
 
 
 });  
@@ -203,9 +249,13 @@
 			<tbody>
 				{% for usuari in usuaris %}
 				<tr id="{{ usuari["_id"] }}">
-					<td>{{ usuari["numero"] }}</td>
-					<td>{{ usuari["nom"] }}</td>
-					<td></td>
+					<td class="seleccionable">{{ usuari["numero"] }}</td>
+					<td class="seleccionable">{{ usuari["nom"] }}</td>
+					<td>
+						<button class="btn btn-warning btn-sm ml-1 btnEliminar" type="button" >
+							<i class="fa fa-trash"></i>
+						</button>
+					</td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -241,11 +291,22 @@
 		</div>
 
 
-		<div class="mb-5" style="font-family: 'Courier New', Courier, monospace; font-size:12px">
-			MongoId: <span id="idMongo" class="text-danger"></span>
+
+
+		<div class="row mb-5">
+			<div class="col" style="font-family: 'Courier New', Courier, monospace; font-size:12px">
+				MongoId: <span id="idMongo" class="text-danger"></span>
+			</div>
+			<div class="col-auto text-right">
+				<span id="resultatOperacio" class="p-2 rounded"></span>
+			</div>
+
 		</div>
 		
 		
+		
+
+
 		<div class="row">
 			<div class="col" id="checksColumna1"></div>
 			<div class="col" id="checksColumna2"></div>
