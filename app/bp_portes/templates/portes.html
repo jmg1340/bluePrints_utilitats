@@ -4,126 +4,267 @@
 <script>
   $( document ).ready(function() {
 
-	$("#btnBuscar").on("click", function(){
+
+	// CREACIO DELS REGISTRES DE LA TAULA
+	$.ajax({
+		method: "GET",
+		url: "/getTraxs",
+	})
+	.done(function( response ) {
+		// console.log("response", response )
+
+		response.forEach(function( obj, index ){ 
+			constuirTR = `
+				<tr id="${ obj["lloc"]}">
+					<td class="seleccionable">${ obj["lloc"] }</td>
+					<td class="seleccionable">${ obj["connexio"] }</td>
+					<td class="seleccionable">${ obj["model"] }</td>
+					<td class="seleccionable">${ obj["ns"] }</td>
+					<td class="text-nowrap">
+						<button class="btn btn-primary btn-sm classEditarTrax" type="button" >
+							<i class="fa fa-edit"></i>
+						</button>
+						<button class="btn btn-warning btn-sm ml-0 classEliminarTrax" type="button" disabled>
+							<i class="fa fa-trash"></i>
+						</button>
+					</td>
+				</tr>
+				`
+				$("#tableTraxs > tbody").append(constuirTR)
+		});
+
+
+		// AL CLICAR UN TRAX DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
+		$(".seleccionable").on("click", function(){ omplirPartDreta( $(this).parent() ) })
+		
+		// EDITAR UN TRAX
+		$(".classEditarTrax").on("click", function(){ editarTrax( $(this).parent().parent() ) })
+		
+	})
+	.fail(function( obj, textStatus, error ) {
+		console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
+	});
+
+
+
+	const guardarDadesTraxEditat = function( tr ) {
+		// prenem nota de les dades dels INPUTS
+		// const tr = $(aixo).parent().parent()
+		console.log("tr", tr)
+		const dades = {
+			lloc: tr.children()[0].children[0].value,
+			connexio: tr.children()[1].children[0].value,
+			model: tr.children()[2].children[0].value,
+			ns: tr.children()[3].children[0].value
+		}
+		console.log( "dades", dades )
+
 		$.ajax({
-			method: "POST",
-			url: "/setFiltre",
+			method: "PUT",
+			url: "/modificarTraxs/"+dades.lloc,
 			dataType: "json",
 			contentType: 'application/json',
-			data: JSON.stringify({ txtBuscar: $("#user").val() })
+			data: JSON.stringify( dades )
 		})
 		.done(function( response ) {
-			// console.log("response", response )
-			$("#tableUsers > tbody > tr").remove()
-			response.forEach(function( obj ){ 
-				$("#tableUsers > tbody").append("<tr><td>"+obj["numero"]+"</td><td>"+obj["nom"]+"</td></tr>")
-			});
+			console.log( response )
+
+			//Eliminem tots les TDs del TR
+			tr.children().remove()
+
+			constuirTDs = `
+					<td class="seleccionable">${ dades["lloc"] }</td>
+					<td class="seleccionable">${ dades["connexio"] }</td>
+					<td class="seleccionable">${ dades["model"] }</td>
+					<td class="seleccionable">${ dades["ns"] }</td>
+					<td class="text-nowrap">
+						<button class="btn btn-primary btn-sm classEditarTrax" type="button" >
+							<i class="fa fa-edit"></i>
+						</button>
+						<button class="btn btn-warning btn-sm ml-0 classEliminarTrax" type="button" disabled>
+							<i class="fa fa-trash"></i>
+						</button>
+					</td>
+				`
+			tr.append( constuirTDs)
+			tr.attr("id", dades.lloc)
+
+			// AL CLICAR UN TRAX DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
+			$(".seleccionable").on("click", function(){ omplirPartDreta( $(this).parent() )})
+			
+			// EDITAR UN TRAX
+			$(".classEditarTrax").on("click", function(){ editarTrax( $(this).parent().parent() )})
+			
+
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR al modificar les dades del trax seleccionat", JSON.stringify(error))
+		});
+
+	}
+
+
+	const editarTrax = function( tr ) {
+		// prenem nota de les dades dels TDs
+		// const tr = $(aixo).parent().parent()
+
+		const lloc = tr.children()[0].innerHTML
+		const connexio = tr.children()[1].innerHTML
+		const model = tr.children()[2].innerHTML
+		const ns = tr.children()[3].innerHTML
+		
+		//Eliminem tots les TDs del TR
+		tr.children().remove()
+		construccioInputs= `
+			<td>
+				<input type="text" class="form-control" placeholder="lloc" value="${lloc}">
+			</td>
+			<td>
+				<input type="text" class="form-control" placeholder="connexio" value="${connexio}">
+			</td>
+			<td>
+				<input type="text" class="form-control" placeholder="model" value="${model}">
+			</td>
+			<td>
+				<input type="text" class="form-control" placeholder="ns" value="${ns}">
+			</td>
+			<td>
+				<button class="btn btn-warning btn-sm ml-0 classGuardarTrax" type="button" >
+					<i class="fa fa-save"></i>
+				</button>		
+			</td>
+			`	
+		tr.append( construccioInputs )
+
+		// GUARDAR LES DADES D'UN TRAX EDITAT
+		$(".classGuardarTrax").on("click", function(){ guardarDadesTraxEditat( $(this).parent().parent() )	})
+
+	}
+
+
+	
+	
+	const omplirPartDreta = function (tr){
+		// fons en blanc de tots els TRs
+		$("#tableTraxs tbody tr").css("background-color", "white")
+		$(tr).css("background-color", "lightgreen")
+
+
+		$("#traxSeleccionat").html( tr.attr("id") )
+
+		$.ajax({
+			method: "GET",
+			url: "/getUsuarisPerTrax/"+tr.attr("id"),
+		})
+		.done(function( response ) {
+			console.log("response", response )
+			$("#tableTraxsUsers tbody tr").remove('tr')
+
+			response.forEach( function( user ){
+				constuirTR = `
+					<tr id="${ user["_id"]["$oid"]}">
+						<td class="seleccionable">${ user["numero"].padStart(6, '0') }</td>
+						<td class="seleccionable">${ user["nom"] }</td>
+						<td>
+							<button class="btn btn-warning btn-sm ml-1 classEliminarUsuari" type="button" >
+								<i class="fa fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+					`
+				$("#tableTraxsUsers > tbody").append(constuirTR)
+			})
+
+			// ELIMINACIO D'UN USUARI DEL TRAX SELECCIONAT
+			$(".classEliminarUsuari").on("click", function(){
+				const idUsuari= $(this).parent().parent().attr( "id" )
+				const trax = $("#traxSeleccionat").html()
+				console.log( "idUsuari:", idUsuari , "trax:", trax)
+				const aixo = this
+
+				$.ajax({
+					method: "PUT",
+					url: "/modificarTraxsDelUsuari/"+idUsuari,
+					dataType: "json",
+					contentType: 'application/json',
+					data: JSON.stringify({ trax: trax })
+				})
+				.done(function( response ) {
+					console.log( response )
+					$(aixo).parent().parent().remove('tr')
+				})
+				.fail(function( obj, textStatus, error ) {
+					console.log( "ERROR al obtenir els usuaris per trax seleccionat", JSON.stringify(error))
+				});
+			})
 			
 		})
 		.fail(function( obj, textStatus, error ) {
-			console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
-			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+			console.log( "ERROR al obtenir els usuaris per trax seleccionat", JSON.stringify(error))
 		});
-	})
-
-	// $("#formUser").on("submit", function(){
-	// 	prevent.default()
-	// 	console.log("fomulari submited")
-	// })
+	}
 
 
-
-  });  
+});  
 </script>
 {% endblock %}
 
 
 {% block content %}
+<div class="row shadow p-3 mb-5 bg-white rounded">
+	<div class="col h2">
+		TRAX
+	</div>
+	<div class="col text-right">
+		<a class="btn btn-primary" type="button" href="/getUsuaris">
+			Usuaris <i class="fa fa-users"></i>
+		</a>
+	</div>		
+</div>
 
-<div class="row mt-4 " style="height: 400px;">
-	<div class="col col-4 border-right">
-	
+
+
+
+<div class="row">
+	<div class="col-8">
 		
-		<!-- USER-->
-		<!-- <form id="formUser" method="POST" action="/setFiltre" enctype="application/json"> -->
-			<div class="input-group mb-3">
-				<span class="input-group-text" id="basic-addon1"> <i class="fa fa-user"></i> </span>
-				<input id="user" name="user" type="text" class="form-control" placeholder="Nom o numero treballador" aria-label="Username" aria-describedby="basic-addon1">
-				<div class="input-group-append">
-					<!-- <button class="btn btn-primary" type="submit" id="btnBuscar">
-						<i id="search" class="fa fa-search"></i>
-					</button> -->
-					<button class="btn btn-primary" type="button" id="btnBuscar">
-						<i id="search" class="fa fa-search"></i>
-					</button>
-					<button class="btn btn-success ml-1" type="button" id="btnBuscar">
-						<i id="newUser" class="fa fa-user-plus"></i>
-					</button>
-				</div>
-			</div>
-		<!-- </form> -->
-
-		<table class="table table-sm" id="tableUsers">
+		<table class="table table-sm" id="tableTraxs" style="font-size: 12px; font-family:monospace,'Courier New', Courier">
 			<thead class="thead-dark">
 				<tr>
-					<th scope="col">Núm</th>
-					<th scope="col">Nom</th>
+					<th scope="col">Lloc</th>
+					<th scope="col">Connexio</th>
+					<th scope="col">Model</th>
+					<th scope="col">ns</th>
+					<th scope="col"></th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for usuari in usuaris %}
-				<tr>
-					<td>{{ usuari.numero }}</td>
-					<td>{{ usuari.nom }}</td>
-				</tr>
-				{% endfor %}
 			</tbody>
 		</table>
-			
+	</div>
+	
+
+
+
+	<div class="col">
+		<div>
+			Usuaris del trax: <span id="traxSeleccionat" class="text-danger"></span>
+		</div>
+		<table class="table table-sm" id="tableTraxsUsers" style="font-size: 12px; font-family:monospace,'Courier New', Courier">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="Nom">Numero</th>
+					<th scope="numero">Nom</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+
 
 	</div>
-</div>			
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--  ********************  POPUP ****************** -->
-<div class="modal fade" id="idFinestraEmergent" tabindex="-1" role="dialog" aria-labelledby="finestraEmergentLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="feTitol"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-		<div class="input-group mb-3">
-			<span class="input-group-text" id="basic-addon1">
-			<i class="fa fa-question"></i>
-			</span>
-			<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
-		</div>				
-
-      </div>
-      <div class="modal-footer">
-        <button id="tancaFE" type="button" class="btn btn-secondary" data-dismiss="modal">Tanca</button>
-        <button id="idBtnFE" type="button" class="btn btn-primary">Ok</button>
-      </div>
-    </div>
-  </div>
 </div>
-
 
 {% endblock %}
 

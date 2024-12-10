@@ -8,8 +8,14 @@ import pymongo
 
 
 
+@portes.route('/getPagTrax', methods=['GET'])
+def fgetPagTrax():
+	return render_template("portes.html", titol="Accessos a portes")
+
+
+
 @portes.route('/getTraxs', methods=['GET'])
-def fgetTraxs( ):
+def fgetTraxs():
 	print( "\n\nestic a GET de getTraxs")
 	
 	try:

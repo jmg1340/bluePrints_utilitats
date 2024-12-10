@@ -4,92 +4,92 @@
 <script>
   $( document ).ready(function() {
 
-		// CREACIO DELS CHECKSBOX DELS TRAX
+	// CREACIO DELS CHECKSBOX DELS TRAX
+	$.ajax({
+		method: "GET",
+		url: "/getTraxs",
+	})
+	.done(function( response ) {
+		// console.log("response", response )
+
+		response.forEach(function( obj, index ){ 
+			constuirChecks = `
+			<div class="input-group input-group-sm mb-1">
+				<div class="input-group-prepend ml-3">
+					<div class="input-group-text">
+						<input type="checkbox" value="${obj.lloc}" aria-label="Checkbox for following text input">
+					</div>
+				</div>
+				<div class="ml-3">${obj.lloc}</div>
+			</div>
+			`
+			if (index < 12){
+				$("#checksColumna1").append(constuirChecks)
+			} else {
+				$("#checksColumna2").append(constuirChecks)
+			}
+		});
+		
+	})
+	.fail(function( obj, textStatus, error ) {
+		console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
+	});
+
+
+
+	// LLISTAT D'USUARIS i FILTRATGE
+
+	$("#btnBuscar").on("click", function(){
+		buscarUsuaris()
+	})
+
+	$("#user").on("keypress", function( event ){
+		if (event.which == 13) buscarUsuaris()
+	})
+
+
+	const buscarUsuaris = function(){
+		$("#formNumero").val("")
+		$("#formNom").val("")
+		$("#idMongo").html("")
+		$("input:checkbox").prop("checked", false)
+
 		$.ajax({
-			method: "GET",
-			url: "/getTraxs",
+			method: "POST",
+			url: "/setFiltre",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ txtBuscar: $("#user").val() })
 		})
 		.done(function( response ) {
-			// console.log("response", response )
-
-			response.forEach(function( obj, index ){ 
-				constuirChecks = `
-				<div class="input-group input-group-sm mb-1">
-					<div class="input-group-prepend ml-3">
-						<div class="input-group-text">
-							<input type="checkbox" value="${obj.lloc}" aria-label="Checkbox for following text input">
-						</div>
-					</div>
-					<div class="ml-3">${obj.lloc}</div>
-				</div>
+			console.log("response", response )
+			$("#tableUsers > tbody > tr").remove()
+			response.forEach(function( obj ){ 
+				constuirTR = `
+				<tr id="${ obj["_id"]["$oid"]}">
+					<td class="seleccionable">${ obj["numero"] }</td>
+					<td class="seleccionable">${ obj["nom"] }</td>
+					<td>
+						<button class="btn btn-warning btn-sm ml-1 btnEliminar" type="button" >
+							<i class="fa fa-trash"></i>
+						</button>
+					</td>
+				</tr>
 				`
-				if (index < 12){
-					$("#checksColumna1").append(constuirChecks)
-				} else {
-					$("#checksColumna2").append(constuirChecks)
-				}
+				$("#tableUsers > tbody").append(constuirTR)
 			});
-			
+
+			// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
+			$("#tableUsers tbody tr .seleccionable").on("click", function(){ omplirPartDreta(this) })
+
+			// BOTO ELIMINAR USUARI
+			$(".btnEliminar").on("click", function(){ eliminarUsuari( this ) })
+
 		})
 		.fail(function( obj, textStatus, error ) {
 			console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
 		});
-
-
-
-		// LLISTAT D'USUARIS i FILTRATGE
-
-		$("#btnBuscar").on("click", function(){
-			buscarUsuaris()
-		})
-
-		$("#user").on("keypress", function( event ){
-			if (event.which == 13) buscarUsuaris()
-		})
-
-
-		const buscarUsuaris = function(){
-			$("#formNumero").val("")
-			$("#formNom").val("")
-			$("#idMongo").html("")
-			$("input:checkbox").prop("checked", false)
-
-			$.ajax({
-				method: "POST",
-				url: "/setFiltre",
-				dataType: "json",
-				contentType: 'application/json',
-				data: JSON.stringify({ txtBuscar: $("#user").val() })
-			})
-			.done(function( response ) {
-				console.log("response", response )
-				$("#tableUsers > tbody > tr").remove()
-				response.forEach(function( obj ){ 
-					constuirTR = `
-					<tr id="${ obj["_id"]["$oid"]}">
-						<td class="seleccionable">${ obj["numero"] }</td>
-						<td class="seleccionable">${ obj["nom"] }</td>
-						<td>
-							<button class="btn btn-warning btn-sm ml-1 btnEliminar" type="button" >
-								<i class="fa fa-trash"></i>
-							</button>
-						</td>
-					</tr>
-					`
-					$("#tableUsers > tbody").append(constuirTR)
-				});
-
-				// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA
-				$("#tableUsers tbody tr .seleccionable").on("click", function(){ omplirPartDreta(this) })
-
-				// BOTO ELIMINAR USUARI
-				$(".btnEliminar").on("click", function(){ eliminarUsuari( this ) })
-
-			})
-			.fail(function( obj, textStatus, error ) {
-				console.log( "ERROR al filtrar usuaris", JSON.stringify(error))
-			});
-		}
+	}
 
 
 
@@ -219,6 +219,18 @@
 
 {% block content %}
 
+<div class="row shadow p-3 mb-5 bg-white rounded">
+	<div class="col h2">
+		USUARIS
+	</div>
+	<div class="col text-right">
+		<a class="btn btn-primary" type="button" href="/getPagTrax">
+			Traxs <i class="fa fa-copy"></i>
+		</a>
+	</div>
+</div>
+
+
 <div class="row mt-4 " style="height: 400px;">
 	<div class="col col-4 border-right">
 	
@@ -269,7 +281,7 @@
 	<div class="col">
 
 		<div class="row mt-4">
-			<div class="col">
+			<div class="col-3">
 
 				<div class="input-group mb-3">
 					<span class="input-group-text" id="basic-addon1"> # </span>
