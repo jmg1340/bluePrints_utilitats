@@ -54,6 +54,9 @@ def create_app():
     from app.bp_portes import portes
     app.register_blueprint(portes)
 
+    from app.bp_llistatInfoEstacions import llistatEstacions
+    app.register_blueprint(llistatEstacions)
+
 
 
   @app.route('/menu')
