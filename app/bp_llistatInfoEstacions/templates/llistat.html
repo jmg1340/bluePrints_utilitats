@@ -13,63 +13,105 @@
 
     let comptadorIPs = 0
     let totalIPs = 0
+    let comptadorRegistres = 0
+    let dataInici, dataFinal 
 
     $("#btnStart").on( "click", function() {
+        dataInici= new Date()
+
         console.log("rangsIPCDIR", $("#rangIPs").val())
         $("#taulaLlistat tbody tr").remove('tr')
         socket.emit('arranca_processos', $("#rangIPs").val());
         comptadorIPs = 0
-        $("#progres").css("width", "0%").attr("aria-valuenow", "0%").text("0%");
-        $("#comptador").html( `${comptadorIPs} / ${totalIPs}` )
+        comptadorRegistres=0
+        
+        $("#progres").css("width", "2em")
+        .attr("aria-valuenow", "0%")
+        .text("(0 / 0) 0%")
+        .addClass( "progress-bar-animated progress-bar-striped");
+        
+        $("#comptador").html( `${comptadorRegistres}` )
+
+    })
+
+
+
+
+
+    socket.on("infoTotalIPs", function(getTotalIPs){
+        totalIPs = getTotalIPs
+    })
+
+    socket.on('recepcioDades', function(arr) {
+        // console.log("dadesRebudes", arr )
+        if (arr != ""){
+            const construccioTR = `
+            <tr>
+                <td scope="col">${arr[0]}</td>
+                <td scope="col">${arr[1]}</td>
+                <td scope="col">${arr[2]}</td>
+                <td scope="col">${arr[3]}</td>
+                <td scope="col">${arr[4]}</td>
+                <td scope="col">${arr[5]}</td>
+                <td scope="col">${arr[6]}</td>
+                <td scope="col">${arr[7]}</td>
+                <td scope="col">${arr[8]}</td>
+                <td scope="col">${arr[9]}</td>
+                <td scope="col">${arr[10]}</td>
+                <td scope="col">${arr[11]}</td>
+            </tr>
+            `
+
+            $("#taulaLlistat tbody").prepend( construccioTR )
+
+            $("#taulaLlistat tbody tr:first")
+            .css( "background-color", "lightgreen")
+            .animate({ "background-color": "white"},2000)
+
+            comptadorRegistres += 1
+        }
+
+        comptadorIPs +=1
+        
+        
+        // $("#progres").attr( "aria-valuenow", comptadorIPs.toString() )
+        let percentatge = Math.round(comptadorIPs / totalIPs * 100, 2) +"%"; 
+        // $("#progres").html( percentatge )
+        // console.log( percentatge )
+        
+        $("#comptador").html( comptadorRegistres )
+        $("#progres").css("width", percentatge).attr("aria-valuenow", percentatge).text(`(${comptadorIPs} / ${totalIPs}) ${percentatge}`);
+        // console.log( `${comptadorIPs} / ${totalIPs}` )
+        
+        if (totalIPs == comptadorIPs){
+            dataFinal = new Date()
+            // console.log( "DataInici:", dataInici )
+            // console.log( "DataFinal:", dataFinal )
+            difTemps = diferenciaTemps( dataInici, dataFinal)
+            $("#progres")
+            .text("FINAL! en " + difTemps)
+            .removeClass( "progress-bar-animated progress-bar-striped" );
+        }
+        
+
     })
 
 
 
-
-    socket.on('connect', function(){
-        socket.on("infoTotalIPs", function(getTotalIPs){
-            totalIPs = getTotalIPs
-        })
-    
-        socket.on('recepcioDades', function(arr) {
-            console.log("dadesRebudes", arr )
-            if (arr != ""){
-                const construccioTR = `
-                <tr>
-                    <td scope="col">${arr[0]}</td>
-                    <td scope="col">${arr[1]}</td>
-                    <td scope="col">${arr[2]}</td>
-                    <td scope="col">${arr[3]}</td>
-                    <td scope="col">${arr[4]}</td>
-                    <td scope="col">${arr[5]}</td>
-                    <td scope="col">${arr[6]}</td>
-                    <td scope="col">${arr[7]}</td>
-                    <td scope="col">${arr[8]}</td>
-                    <td scope="col">${arr[9]}</td>
-                    <td scope="col">${arr[10]}</td>
-                    <td scope="col">${arr[11]}</td>
-                </tr>
-                `
-    
-                $("#taulaLlistat tbody").prepend( construccioTR )
-    
-                $("#taulaLlistat tbody tr:first")
-                .css( "background-color", "lightgreen")
-                .animate({ "background-color": "white"},2000)
-            }
-
-            comptadorIPs +=1
-            // $("#progres").attr( "aria-valuenow", comptadorIPs.toString() )
-            let percentatge = Math.round(comptadorIPs / totalIPs * 100, 2) +"%"; 
-            // $("#progres").html( percentatge )
-            console.log( percentatge )
-
-            $("#comptador").html( `${comptadorIPs} / ${totalIPs}` )
-            $("#progres").css("width", percentatge).attr("aria-valuenow", percentatge).text(percentatge);
-            // console.log( `${comptadorIPs} / ${totalIPs}` )
-        })
-
-    })
+    const diferenciaTemps = function( dataInici, dataFinal){
+        let segundosTotals = Math.abs(dataFinal - dataInici) / 1000;
+        let segundos = segundosTotals % 60
+        let minutos = Math.floor(segundosTotals / 60);
+        segundos %= 60;
+        let horas = Math.floor(minutos / 60);
+        minutos %= 60;
+        let resultado = [
+            ("0" + horas).substr(-2),
+            ("0" + minutos).substr(-2),
+            ("0" + segundos).substr(-2)
+        ].join(":");
+        return resultado        
+    }
 
 
   });  
@@ -91,10 +133,10 @@
 </div>
 
 
-<div id="comptador"></div>
+<div>Estacions trobades: <span id="comptador"></span> </div>
 <div class="progress">
-    <div id="progres"class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
-        0%
+    <div id="progres"class="progress-bar progress-bar-info active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+        (0 / 0) 0%
     </div>
 </div>
 
@@ -104,14 +146,14 @@
         <thead class="thead-dark">
             <tr>
                 <th scope="col">target</th>
-                <th scope="col">nom</th>
-                <th scope="col">usuari</th>
-                <th scope="col">model</th>
-                <th scope="col">NSerie</th>
-                <th scope="col">Ns_Monit</th>
-                <th scope="col">ip</th>
+                <th scope="col">Hostname</th>
+                <th scope="col">Usuari</th>
+                <th scope="col">Model</th>
+                <th scope="col">NS_CPU</th>
+                <th scope="col">NS_Monit</th>
+                <th scope="col">srvNFS</th>
                 <th scope="col">mac</th>
-                <th scope="col">speed</th>
+                <th scope="col">Speed</th>
                 <th scope="col">paquets</th>
                 <th scope="col">Connectat a</th>
                 <th scope="col">Port</th>

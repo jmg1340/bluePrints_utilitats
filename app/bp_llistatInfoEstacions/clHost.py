@@ -2,6 +2,7 @@ import re
 import os
 import subprocess
 from decouple import config
+import asyncio
 
 class Host:
   def __init__( self, host ):
@@ -11,8 +12,8 @@ class Host:
   def comprovarPing( self ):
     try:
       return hostUp( self.host )
-    except:
-      print("FALLA A comprovarPing")
+    except Exception as e:
+      print("\tEXCEPCIO comprovarPing", e)
 
 
 
@@ -21,51 +22,64 @@ class Host:
 
   def getNomHost(self):
     try:
-      resultat = obtenirInfo( self.host, "hostname" )
-      print( "getNomHost - resultat: ", resultat )
-      if True:
-        strResultat = resultat
-        if "\n" in strResultat: 
-          return strResultat.replace( "\n", "" )
-        else:
-          return strResultat
+      resultat = obtenirInfo( self.host, "hostname" ) 
+      if "\n" in resultat: 
+        return resultat.replace( "\n", "" )
       else:
-        return "status:"+str(resultat)
-
-    except :    
-      print("getNomHost: EXCEPCIO")
-      return "getNomHost: EXCEPCIO"
+        return resultat
+    except Exception as e:    
+      print(f"\tEXCEPCIO getNomHost [{self.host}]: ", e)
+      return "invalid host"
+      
       
 
   def getUsuari( self ):
     try:
-      resultat = obtenirInfo( self.host, "w" )
+      resultat = obtenirInfo( self.host, "w" ) 
+      # print("getUsuari resultat:", resultat )
 
       usuaris = set()
-      if True:
-        liniesResultat = resultat.split("\n")
 
-        liniesResultat.pop(0)
-        liniesResultat.pop(0)
+      liniesResultat = resultat.split("\n")
 
-        for linia in liniesResultat:
-          usuaris.add( linia[0:9].strip() )
+      liniesResultat.pop(0)
+      liniesResultat.pop(0)
 
-        return ",".join( dada for dada in usuaris )
+      for linia in liniesResultat:
+        usuaris.add( linia[0:9].strip() )
+
+      # print("\t\t USUARIS", usuaris )
+      
+      if len(usuaris) != 0:
+        cadena = ""
+        for dada in usuaris:
+          if dada != '':
+            if cadena == "":
+              cadena = dada
+            else:
+              cadena += f", {dada}"
+        
+        return cadena
       else:
-        return ("--")
-    except:
-      print ("FALLA A getUsuari")
+        return ""
+
+
+    except Exception as e:    
+      print(f"\tEXCEPCIO getUsuari [{self.host}]: ", e)
+      return None
 
 
 
 
   def getIpMac(self):
     try:
-      resultat = obtenirInfo( self.host, "ifconfig eth0" )
+      resultat = obtenirInfo( self.host, "ifconfig eth0" ) 
+      # print( "resultat getIpMac: ", resultat )
+      # print( "type(resultat)", type(resultat))
       if True:
 
         linia = extraureLinia( resultat, 2 )
+        # print("linia:", linia)
         resultatRe = re.search("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", linia)
         ip =  resultatRe.group() 
 
@@ -79,8 +93,9 @@ class Host:
         return ((ip, mac, paquets))
       else:
         return (( "--", "--", "--"))
-    except:
-      print ("FALLA A getIpMac")
+    except Exception as e:    
+      print(f"\tEXCEPCIO getIpMac [{self.host}]: ", e)
+      return None
 
 
   def getSpeed( self ):
@@ -91,8 +106,21 @@ class Host:
         return resultatRe.group().strip().replace("Speed: ", "")
       else:
         return "--"
-    except:
-      print ("FALLA A getSpeed")
+    except Exception as e:    
+      print(f"\tEXCEPCIO getSpeed [{self.host}]: ", e)
+      return None
+
+
+  def getServidorNFS( self ):
+    try:
+      resultat = obtenirInfo( self.host, "/bin/cat /proc/mounts | /bin/grep nfs | /usr/bin/head -n 1 | /usr/bin/cut -d ':' -f 1" )
+      if resultat != None: 
+        return resultat
+      else:
+        return "--"
+    except Exception as e:    
+      print(f"\tEXCEPCIO getServidorNFS [{self.host}]: ", e)
+      return None
 
 
   def getConnectatA( self ):
@@ -119,14 +147,15 @@ class Host:
 
 
       return( (sysname, sysdescr, portdescr)  )
-    except:
-      print ("FALLA A getConnectatA")
+    except Exception as e:    
+      print(f"\tEXCEPCIO getConnectatA [{self.host}]: ", e)
+      return None
 
 
 
   def getInfoPc( self ):
     try:
-      resultat = obtenirInfo( self.host, "dmidecode -t system" )
+      resultat = obtenirInfo( self.host, "dmidecode -t system" ) 
       liniesResultat = resultat.split("\n")
 
       manufacturer = "--"
@@ -148,8 +177,9 @@ class Host:
 
 
       return( (manufacturer, version, serialnumber)  )
-    except:
-      print ("FALLA A getInfoPc")
+    except Exception as e:    
+      print(f"\tEXCEPCIO getInfoPc [{self.host}]:", e)
+      return None
 
 
   def getInfoMonitor( self ):
@@ -165,8 +195,9 @@ class Host:
           serialID = linia.strip().replace("Serial ID:", "").strip()
 
       return( serialID  )
-    except:
-      print ("FALLA A getInfoMonitor")
+    except Exception as e:    
+      print(f"\tEXCEPCIO getInfoMonitor [{self.host}]:", e)
+      return None
 
 
 
@@ -212,6 +243,7 @@ def verificacioIP( ip ):
 
 # obtenir informacio del sistema
 def obtenirInfo ( host, instruccio ):
+
   password = config('PWDASE')
   ssh_cmd = f"sshpass -p {password} ssh -p 22 -l root -o StrictHostKeyChecking=no " + host + " '" + instruccio + "'"
   # print( ssh_cmd )
@@ -219,13 +251,14 @@ def obtenirInfo ( host, instruccio ):
   # status, output = subprocess.getstatusoutput(ssh_cmd)
   # return (status, output)
   try:
-    output = subprocess.check_output(ssh_cmd, shell=True)
+    output =  subprocess.check_output(ssh_cmd, shell=True) 
     # print("OBTENIR_INFO - OUTPUT\n", output.decode(), "\n")
-    return output.decode() 
-  except subprocess.CalledProcessError as e:
-      print(f"obtenirInfo: Command failed with return code {e.returncode}")
-  except :    
-    print(f"obtenirInfo: EXCEPCIO")
+    return output.decode()
+
+  # except subprocess.CalledProcessError as e:
+  #     print(f"obtenirInfo: Command failed with return code {e.returncode}")
+  except Exception as e :    
+    print(f"\tEXCEPCIO obtenirInfo [{self.host}]: ", e)
 
 
 # extraure una linia d'un text amb caracters de retorn

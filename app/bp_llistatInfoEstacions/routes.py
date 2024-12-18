@@ -4,8 +4,7 @@ from app import socketioApp
 from flask_socketio import emit
 from .clHost import Host
 import ipaddress
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import wait
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait, as_completed, FIRST_EXCEPTION
 import subprocess
 import time
 
@@ -26,26 +25,48 @@ def ejecutarProcessos( strAdreçaXarxa ):
     try:
         # strAdreçaXarxa = "192.168.8.0/23"
         rangIPs = ipaddress.ip_network( strAdreçaXarxa )
-        hostsXarxa = rangIPs.hosts()
-        totalIPs = rangIPs.num_addresses
+        hostsXarxa = rangIPs.hosts()    # hostsXarxa es un objecte "generator"
+        llistaHostsXarxa = [i for i in hostsXarxa] # conversio de objecte "generator" a objecte "llista"
+        # llistaHostsXarxa = llistaHostsXarxa[100:120]
 
+        # totalIPs = rangIPs.num_addresses
+        totalIPs = len( llistaHostsXarxa )
         socketioApp.emit('infoTotalIPs', totalIPs)
-
         # print("Total IPs:", totalIPs)
 
-        executor = ThreadPoolExecutor( max_workers = 10 )
-        futures = []
-        for objIp in hostsXarxa:
-            strIP = str( objIp )
-            # if strIP > "192.168.8.50" : 
-            # print ( f"string IP: {strIP}" )
-            futures.append( executor.submit( imprimirHost, strIP ))
-            time.sleep(0.0)
 
-        print( "Esperant que les tasques s'acabin" )
-        wait( futures )
+        # with ProcessPoolExecutor(max_workers=30) as executor:
+        with ThreadPoolExecutor(max_workers=30) as executor:
+            tasks = []
+            for objIp in llistaHostsXarxa:
+                strIP = str( objIp )
+                task = executor.submit( imprimirHost, strIP )
+                tasks.append( task )
+                # tasks.append( {"ip":strIP, "tasca": task} )
+                # time.sleep(0.5)
+
+            print( "Esperant que les tasques s'acabin" )
+            
+            # for ip_task in as_completed(task["tasca"] for task in tasks):
+            #     try:
+            #         data = ip_tasca["tasca"].result()
+            #     except Exception as exc:
+            #         print( f'{ip_tasca["ip"]} generated an exception: {exec}' )
+            #     else:
+            #         print( f'{ip_tasca["ip"]} tasca completada amb resultat: {data}' )
+
+
+
+            fetesNoFetes = wait( tasks , return_when=FIRST_EXCEPTION)
+            print( f"taskes acabades: {len(fetesNoFetes[0])}",  f"taskes NO acabades: {len(fetesNoFetes[1])}")
+            
+            # for task in as_completed(tasks):
+            #     print("TASCA COMPLETADA:", task.result()) # result is None in this case
+
+
+
     except Exception as e:
-        print( f"Error amb el map:\n{e}" )
+        print( f"EXCEPCIO ejecutarProcessos: {e}" )
 
     print( "**** Totes les tasques fetes ****" )
 
@@ -54,16 +75,19 @@ def ejecutarProcessos( strAdreçaXarxa ):
 def imprimirHost( ip ):
     try:
         objH = Host(ip)
+        # print( "COMPROVAR PING: ", objH.comprovarPing() )
         if objH.comprovarPing() == True:
             #   if objH.getNomHost().startswith("status") == False:
             #   tempsIniciDadesHost = time.time()
 
-            if objH.getNomHost() != "getNomHost: EXCEPCIO":
+            if objH.getNomHost() != "invalid host":
                 # print("\n================================")
                 nom = objH.getNomHost()
                 # print ("NOM", nom)
                 ipmacpaq = objH.getIpMac()
                 # print( "ipmacpaq", ipmacpaq)
+                servidorNFS = objH.getServidorNFS()
+                # print( "servidorNFS", servidorNFS )
                 speed = objH.getSpeed()
                 # print( "speed", speed )
                 connectatA = objH.getConnectatA()
@@ -79,18 +103,18 @@ def imprimirHost( ip ):
                 arr = [
                     ip, 
                     nom, 
-                    user, 
-                    infoPc[0] + " - " + infoPc[1], 
-                    infoPc[2], 
-                    infoMonitor, 
-                    ipmacpaq[0], 
+                    user or "", 
+                    infoPc[0] + " - " + infoPc[1] or "", 
+                    infoPc[2] or "", 
+                    infoMonitor or "", 
+                    servidorNFS, 
                     ipmacpaq[1], 
                     speed, 
                     ipmacpaq[2], 
-                    connectatA[0], 
+                    connectatA[0] or "", 
                     connectatA[2]
                 ]
-
+                # print("arr", arr)
                 socketioApp.emit('recepcioDades', arr)
             
             else:
