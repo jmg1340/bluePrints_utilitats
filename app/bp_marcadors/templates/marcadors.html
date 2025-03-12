@@ -1,0 +1,235 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+<!-- Socket io -->
+
+<script>
+  $( document ).ready(function() {
+    
+    console.log("document marcadors preparat")
+    $("section").removeClass("container").addClass("container-fluid")
+
+
+
+
+    $("#btnGetMarcadors").on("click", function(){
+		
+        if ( $("#hostname").val().length == 0 ){
+			$("#textAreaMarcadors").html( "Falta informar hostname / IP" )
+			return
+		}        
+        
+        if ( $("#user").val().length == 0 ){
+			$("#textAreaMarcadors").html( "Falta informar user" )
+			return
+		}        
+        
+        
+        $.ajax({
+			method: "POST",
+			url: "/getInfoMarcadors",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ user: $("#user").val(), host: $("#hostname").val() })
+		})
+		.done(function( response ) {
+            console.log("response", response)
+            // response.missatge = response.missatge.replace('\n', '<br/><br/>')
+            // response.missatge = response.missatge.replace(' ', '&nbsp;')
+			$("#textAreaMarcadors").html( response.missatge )
+
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR", JSON.stringify(error))
+			$("#textAreaMarcadors").html( JSON.stringify(error) )
+			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+
+    })
+
+
+    $("#btnGetMarcadors").on("click", function(){
+		
+        if ( $("#hostname").val().length == 0 ){
+			$("#textAreaMarcadors").html( "Falta informar hostname / IP" )
+			return
+		}        
+        
+        if ( $("#user").val().length == 0 ){
+			$("#textAreaMarcadors").html( "Falta informar user" )
+			return
+		}        
+        
+        
+        $.ajax({
+			method: "POST",
+			url: "/getInfoMarcadors",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ user: $("#user").val(), host: $("#hostname").val() })
+		})
+		.done(function( response ) {
+            console.log("response", response)
+            // response.missatge = response.missatge.replace('\n', '<br/><br/>')
+            // response.missatge = response.missatge.replace(' ', '&nbsp;')
+			$("#textAreaMarcadors").html( response.missatge )
+
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR", JSON.stringify(error))
+			$("#textAreaMarcadors").html( JSON.stringify(error) )
+			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+
+    })
+
+
+
+    $("#btnUpdateMarcadors").on("click", function(){
+		
+        if ( $("#textAreaMarcadors").val().length == 0 ){
+			$("#resultat").html( "No s'ha fet res. No hi ha contingut" )
+			return
+		}        
+      
+        $.ajax({
+			method: "POST",
+			url: "/getInfoMarcadors",
+			dataType: "json",
+			contentType: 'application/json',
+			data: JSON.stringify({ 
+                user: $("#user").val(), 
+                host: $("#hostname").val(),
+                contingut: $("#textAreaMarcadors").val()
+            })
+		})
+		.done(function( response ) {
+            console.log("response", response)
+            // response.missatge = response.missatge.replace('\n', '<br/><br/>')
+            // response.missatge = response.missatge.replace(' ', '&nbsp;')
+			$("#textAreaMarcadors").html( response.missatge )
+
+		})
+		.fail(function( obj, textStatus, error ) {
+			console.log( "ERROR", JSON.stringify(error))
+			$("#textAreaMarcadors").html( JSON.stringify(error) )
+			// alert( "HI HA HAGUT UN ERROR: " + textStatus );
+		});
+
+    })
+
+
+
+
+
+
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col">
+        <div>
+            EXEMPLE DE MARCADORS DE CHROME
+        </div>
+        <div>
+            ruta: <span class="text-danger">/home/eqsc017/.config/google-chrome/Default/Bookmarks</span>
+        </div>
+
+        <pre>
+        {
+            "checksum": "b352ee6ac7d3fc776b12f97279252326",
+            "roots": {
+               "bookmark_bar": {
+                  "children": [ {
+                     "date_added": "13382532660665811",
+                     "date_last_used": "13382649908717779",
+                     "guid": "7da910f7-e62c-45df-8946-08a0543807f0",
+                     "id": "5",
+                     "meta_info": {
+                        "power_bookmark_meta": ""
+                     },
+                     "name": "Petitiori medicaments",
+                     "type": "url",
+                     "url": "http://srvhospimut2.asepeyo.site:8080/botiquines_planta"
+                  } ],
+                  "date_added": "13382522850591495",
+                  "date_last_used": "0",
+                  "date_modified": "13382532660665811",
+                  "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+                  "id": "1",
+                  "name": "Barra de marcadores",
+                  "type": "folder"
+               },
+               "other": {
+                  "children": [  ],
+                  "date_added": "13382522850591499",
+                  "date_last_used": "0",
+                  "date_modified": "0",
+                  "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+                  "id": "2",
+                  "name": "Otros marcadores",
+                  "type": "folder"
+               },
+               "synced": {
+                  "children": [  ],
+                  "date_added": "13382522850591517",
+                  "date_last_used": "0",
+                  "date_modified": "0",
+                  "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+                  "id": "3",
+                  "name": "Marcadores móvil",
+                  "type": "folder"
+               }
+            },
+            "version": 1
+         }
+         </pre>
+    </div>
+
+    <div class="col">
+
+        <!-- IP O HOSTNAME -->
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">
+                <i class="fa fa-desktop"></i>
+            </span>
+            <input id="hostname" type="text" class="form-control mr-2" placeholder="hostname / IP" style="max-width: 200px">
+
+            <span class="input-group-text" id="basic-addon1">
+                <i class="fa fa-user"></i>
+            </span>
+            <input id="user" type="text" class="form-control mr-2" placeholder="user" style="max-width: 200px">
+
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="btnGetMarcadors">get marcadors</button>
+            </div>
+        </div>
+
+
+
+
+        <div class="mt-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Marcadors:</label>
+            <textarea class="form-control" id="textAreaMarcadors" rows="25"></textarea>
+        </div>
+
+
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="btnUpdateMarcadors" disabled>modificar marcadors</button>
+        </div>
+        <div id="resultat">
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}

@@ -163,7 +163,7 @@
 			response.forEach( function( user ){
 				constuirTR = `
 					<tr id="${ user["_id"]["$oid"]}">
-						<td class="seleccionable">${ user["numero"].padStart(6, '0') }</td>
+						<td class="seleccionable">${ user["numero"].padStart(6, '0')+'00' }</td>
 						<td class="seleccionable">${ user["nom"] }</td>
 						<td>
 							<button class="btn btn-warning btn-sm ml-1 classEliminarUsuari" type="button" >

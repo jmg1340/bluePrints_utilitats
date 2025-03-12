@@ -43,8 +43,10 @@ Si tornem a executar `python3 utilitats.py` hem de desinstalar 'eventlet' per a 
 <br/><br/><br/><br/>
 
 ## Mongodb
-> mongoimport --db=NOM_BDD --collection=NOM_COLECCIO --jsonArray --file=NOM_FITXER.json<br/><br/>
-db.createUser({ user:"NOM_USUARI", pwd:"PWD", roles:[] })<br/><br/>
+> mongoimport --db=NOM_BDD --collection=NOM_COLECCIO --jsonArray --file=NOM_FITXER.json<br>
+mongoexport --db=NOM_BDD --collection=NOM_COLECCIO --out=NOM_FITXER.json
+<br/><br/>
+db.createUser({ user:"NOM_USUARI", pwd:"PWD", roles:[] })<br/>
 db.changeUserPassword("NOM_USUARI", "PWD")
 
 <br/><br/><br/><br/>
