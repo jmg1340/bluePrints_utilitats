@@ -10,7 +10,7 @@ import os
 @perfils.route('/perfilsNFS', methods=['GET'])
 def fFormulariPerfils():
 	if "username" in session:
-		return render_template( 'perfils.html', titol="ELIMINACIÓ PERIFL als NFS" )
+		return render_template( 'perfils.html', titol="ELIMINACIÓ PERIFL al NFS" )
 	else:
 		return "Accés prohibit."
 

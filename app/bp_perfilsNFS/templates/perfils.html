@@ -9,20 +9,13 @@
 
 
 	$("#llistar_nfs1").on("click", function(){
-		llistarPerfils("192.168.10.4")
+		llistarPerfils("10.240.129.20")
 	})
     
     $("#eliminar_nfs1").on("click", function(){
-		eliminarPerfil("192.168.10.4")
-	})
-	
-	$("#llistar_nfs2").on("click", function(){
-		llistarPerfils("192.168.10.5")
+		eliminarPerfil("10.240.129.20")
 	})
 
-	$("#eliminar_nfs2").on("click", function(){
-		eliminarPerfil("192.168.10.5")
-	})
 	
 
 
@@ -96,23 +89,15 @@
 			<i class="fa fa-user"></i>
 			</span>
 			<input id="user" type="text" class="form-control" placeholder="numero treballador" aria-label="Username" aria-describedby="basic-addon1">
+			<div class="input-group-append">
+				<button class="btn btn-danger" type="button" id="eliminar_nfs1">Eliminar</button>
+			</div>
 		</div>
 				
 		<div class="mt-5">
-			<div class="">
-				<button class="btn btn-primary" type="button" id="llistar_nfs1">Llistar perfils de NFS1 (192.168.10.4)</button>
-			</div>
-			<div class="mt-1">
-				<button class="btn btn-danger" type="button" id="eliminar_nfs1">Eliminar perfil de NFS1 (192.168.10.4)</button>
-			</div>
-			<div class="mt-5">
-				<button class="btn btn-primary" type="button" id="llistar_nfs2">Llistar perfils de NFS2 (192.168.10.5)</button>
-			</div>
-			<div class="mt-1">
-				<button class="btn btn-danger" type="button" id="eliminar_nfs2">Eliminar perfil de NFS2 (192.168.10.5)</button>
-			</div>
-
+			<button class="btn btn-primary" type="button" id="llistar_nfs1">Llistar perfils de 'nfs0885-h' (10.240.129.20)</button>
 		</div>
+
 	</div>
 	<div class="col" >
 		<div class="font-weight-bold border-bottom">
