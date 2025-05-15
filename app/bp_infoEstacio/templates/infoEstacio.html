@@ -39,6 +39,13 @@
 				break
 			case "ps auxf":
 				$(".container").attr( "width", "100%" )
+				break
+			case "chown -R xxxx /home/xxxx":
+				$("#feTitol").html("Numero treballador:")
+				$("#feResposta").val("")
+				$('#idFinestraEmergent').modal('show');
+				break
+
 			default:
 				enviarCmd( cmdSeleccionat)
 		}
@@ -52,7 +59,7 @@
 
 	$("#idBtnFE").on("click", function(){
 		if ( $("#feResposta").val() !== "" ) {
-			cmdSeleccionat = cmdSeleccionat.replace("xxx", $("#feResposta").val())
+			cmdSeleccionat = cmdSeleccionat.replaceAll("xxxx", $("#feResposta").val())
 			$('#idFinestraEmergent').modal('hide');
 			console.log(cmdSeleccionat);
 			console.log("----------------")
@@ -128,6 +135,29 @@
 			</div>
 			<div class="form-control">Hostname</div>
 		</div>
+
+
+
+		<div class="input-group input-group-sm mt-3">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="net ads testjoin" aria-label="Radio button for following text input" >
+				</div>
+			</div>
+			<div class="form-control bg-warning">net ads testjoin</div>
+		</div>
+
+		<div class="input-group input-group-sm mb-3">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="chown -R xxxx /home/xxxx" aria-label="Radio button for following text input" >
+				</div>
+			</div>
+			<div class="form-control bg-warning">chown -R (numPers) /home/(numPers)</div>
+		</div>
+
+
+
 
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
@@ -267,7 +297,7 @@
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
 				<div class="input-group-text">
-					<input type="radio" name="grup1" value="ps aux | grep -i 'xxx'" aria-label="Radio button for following text input">
+					<input type="radio" name="grup1" value="ps aux | grep -i 'xxxx'" aria-label="Radio button for following text input">
 				</div>
 			</div>
 			<div class="form-control">Filtrar procés per nom</div>
@@ -276,7 +306,7 @@
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
 				<div class="input-group-text">
-					<input type="radio" name="grup1" value="kill xxx" aria-label="Radio button for following text input">
+					<input type="radio" name="grup1" value="kill xxxx" aria-label="Radio button for following text input">
 				</div>
 			</div>
 			<div class="form-control">Matar procés pel seu PID</div>
