@@ -1,129 +1,76 @@
+#
+# en tu archivo de servidor (.py)
+#
 from flask import render_template, request, session, url_for
 from . import llistatEstacions
 from app import socketioApp
 from flask_socketio import emit
 from .clHost import Host
 import ipaddress
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, wait, as_completed, FIRST_EXCEPTION
-import subprocess
-import time
-
-
+# Ya no necesitamos asyncio ni subprocess aquí directamente si clHost lo maneja
 
 @llistatEstacions.route('/llistatEstacions', methods=['GET'])
 def fllistatEstacions():
-	if "username" in session:
-		return render_template( 'llistat.html', titol="Llistat informació estacions plataforma" )
-	else:
-		return "Accés prohibit."
+    # ... tu código actual (sin cambios)
+    if "username" in session:
+        return render_template('llistat.html', titol="Llistat informació estacions plataforma")
+    else:
+        return "Accés prohibit."
 
 
+@socketioApp.on('arranca_proces_info_estacions')
+def arranca_proces(strAdreçaXarxa): # <--- 1. Ya no es 'async def'
+    print("estic a 'ejecutarProcessos'")
+    
+    rangIPs = ipaddress.ip_network(strAdreçaXarxa)
+    hostsXarxa = rangIPs.hosts()
+    ips_a_comprobar = [str(i) for i in hostsXarxa]
 
-@socketioApp.on('arranca_processos')
-def ejecutarProcessos( strAdreçaXarxa ):
-    print( "\n*** ARRANCA PROCESSOS ***\n" )
-    try:
-        # strAdreçaXarxa = "192.168.8.0/23"
-        rangIPs = ipaddress.ip_network( strAdreçaXarxa )
-        hostsXarxa = rangIPs.hosts()    # hostsXarxa es un objecte "generator"
-        llistaHostsXarxa = [i for i in hostsXarxa] # conversio de objecte "generator" a objecte "llista"
-        # llistaHostsXarxa = llistaHostsXarxa[100:120]
+    print(f"Comprovant {len(ips_a_comprobar)} IPs...")
 
-        # totalIPs = rangIPs.num_addresses
-        totalIPs = len( llistaHostsXarxa )
-        socketioApp.emit('infoTotalIPs', totalIPs)
-        # print("Total IPs:", totalIPs)
+    # Enviamos el total de IPs al cliente para la barra de progreso
+    socketioApp.emit('infoTotalIPs', len(ips_a_comprobar))
+    
+    # 2. Lanzamos cada comprobación como una tarea de fondo compatible con eventlet
+    for ip in ips_a_comprobar:
+        socketioApp.start_background_task(recullInformacio, ip)
 
-
-        # with ProcessPoolExecutor(max_workers=30) as executor:
-        with ThreadPoolExecutor(max_workers=30) as executor:
-            tasks = []
-            for objIp in llistaHostsXarxa:
-                strIP = str( objIp )
-                task = executor.submit( imprimirHost, strIP )
-                tasks.append( task )
-                # tasks.append( {"ip":strIP, "tasca": task} )
-                # time.sleep(0.5)
-
-            print( "Esperant que les tasques s'acabin" )
-            
-            # for ip_task in as_completed(task["tasca"] for task in tasks):
-            #     try:
-            #         data = ip_tasca["tasca"].result()
-            #     except Exception as exc:
-            #         print( f'{ip_tasca["ip"]} generated an exception: {exec}' )
-            #     else:
-            #         print( f'{ip_tasca["ip"]} tasca completada amb resultat: {data}' )
-
-
-
-            fetesNoFetes = wait( tasks , return_when=FIRST_EXCEPTION)
-            print( f"taskes acabades: {len(fetesNoFetes[0])}",  f"taskes NO acabades: {len(fetesNoFetes[1])}")
-            
-            # for task in as_completed(tasks):
-            #     print("TASCA COMPLETADA:", task.result()) # result is None in this case
-
-
-
-    except Exception as e:
-        print( f"EXCEPCIO ejecutarProcessos: {e}" )
-
-    print( "**** Totes les tasques fetes ****" )
-
-
-
-def imprimirHost( ip ):
-    try:
-        objH = Host(ip)
-        # print( "COMPROVAR PING: ", objH.comprovarPing() )
-        if objH.comprovarPing() == True:
-            #   if objH.getNomHost().startswith("status") == False:
-            #   tempsIniciDadesHost = time.time()
-
-            if objH.getNomHost() != "invalid host":
-                # print("\n================================")
-                nom = objH.getNomHost()
-                # print ("NOM", nom)
-                ipmacpaq = objH.getIpMac()
-                # print( "ipmacpaq", ipmacpaq)
-                servidorNFS = objH.getServidorNFS()
-                # print( "servidorNFS", servidorNFS )
-                speed = objH.getSpeed()
-                # print( "speed", speed )
-                connectatA = objH.getConnectatA()
-                # print( "connectatA", connectatA)
-                infoPc = objH.getInfoPc()
-                # print( "infoPc", infoPc)
-                infoMonitor = objH.getInfoMonitor()
-                # print( "infoMonitor", infoMonitor)
-                user = objH.getUsuari()
-                # print( "user", user)
-                # print("================================\n")
-
-                arr = [
-                    ip, 
-                    nom, 
-                    user or "", 
-                    infoPc[0] + " - " + infoPc[1] or "", 
-                    infoPc[2] or "", 
-                    infoMonitor or "", 
-                    servidorNFS, 
-                    ipmacpaq[1], 
-                    speed, 
-                    ipmacpaq[2], 
-                    connectatA[0] or "", 
-                    connectatA[2]
-                ]
-                # print("arr", arr)
-                socketioApp.emit('recepcioDades', arr)
-            
-            else:
-                ''' fa pinta de que sigui algo diferent a una estacio de treball '''
-                socketioApp.emit('recepcioDades', "")
-                
-        else:
-            # print( "{}: no respon a pings".format( ip ) )
+# Esta función será ejecutada en un hilo "verde" de eventlet
+def recullInformacio(ip): # <--- 3. Ya no es 'async def'
+    # La lógica interna es la misma, pero sin 'await'
+    objHost = Host(ip)
+    faPing = objHost.comprovarPing() # <--- 4. Asumimos que clHost.py usa llamadas bloqueantes (p.ej. subprocess.run)
+    
+    if faPing:
+        nomHost = objHost.getNomHost()
+        
+        if nomHost.startswith("Error"):
+            print(f"ip {ip:<13} [🟢 UP]", f"Nom: {nomHost}")
             socketioApp.emit('recepcioDades', "")
+            # Puedes decidir si emitir algo en caso de error
+        else:
+            usuari = objHost.getUsuari()
+            mac_paquets = objHost.getIpMac()
+            speed = objHost.getSpeed()
+            connectatA = objHost.getConnectatA()
+            getInfoPc = objHost.getInfoPc()
+            ns_monitor = objHost.getInfoMonitor()
 
-    except Excetpion as e:
-        print ( f"s'ha produit el error\n{e}" )
+            arr = [
+                str(ip),
+                nomHost,
+                usuari or "",
+                getInfoPc[1] or "",  # model
+                ns_monitor or "",
+                mac_paquets[0],      # mac
+                speed,
+                mac_paquets[1],      # paquets
+                connectatA[0] or "", # switch
+                connectatA[2]       # port
+            ]
+            socketioApp.emit('recepcioDades', arr)
+            print(f"ip {str(ip):<13} [🟢 UP]", f"HOST: {nomHost}")
+    else:
+        print(f"ip {str(ip):<13} [🔴 DOWN]")
+        # Opcional: emitir un evento para las IPs caídas y que el cliente actualice el progreso
+        socketioApp.emit('recepcioDades', "") # Tu código original tenía esto

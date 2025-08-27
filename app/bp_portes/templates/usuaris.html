@@ -13,7 +13,7 @@
 		// console.log("response", response )
 
 		response.forEach(function( obj, index ){ 
-			constuirChecks = `
+			construirChecks = `
 			<div class="input-group input-group-sm mb-1">
 				<div class="input-group-prepend ml-3">
 					<div class="input-group-text">
@@ -24,9 +24,9 @@
 			</div>
 			`
 			if (index < 12){
-				$("#checksColumna1").append(constuirChecks)
+				$("#checksColumna1").append(construirChecks)
 			} else {
-				$("#checksColumna2").append(constuirChecks)
+				$("#checksColumna2").append(construirChecks)
 			}
 		});
 		
@@ -65,7 +65,7 @@
 			console.log("response", response )
 			$("#tableUsers > tbody > tr").remove()
 			response.forEach(function( obj ){ 
-				constuirTR = `
+				construirTR = `
 				<tr id="${ obj["_id"]["$oid"]}">
 					<td class="seleccionable">${ obj["numero"] }</td>
 					<td class="seleccionable">${ obj["nom"] }</td>
@@ -76,7 +76,7 @@
 					</td>
 				</tr>
 				`
-				$("#tableUsers > tbody").append(constuirTR)
+				$("#tableUsers > tbody").append(construirTR)
 			});
 
 			// AL CLICAR UN USUARI DE LA LLISTA, OMPLIR DADES DE LA PART DRETA

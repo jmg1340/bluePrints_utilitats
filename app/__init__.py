@@ -29,7 +29,7 @@ def create_app():
 
 
 
-  socketioApp.init_app(app)
+  socketioApp.init_app(app, async_mode='eventlet')
   mongo.init_app(app)
 
   with app.app_context():

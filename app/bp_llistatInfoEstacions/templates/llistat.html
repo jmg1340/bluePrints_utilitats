@@ -6,34 +6,45 @@
 
 <script>
   $( document ).ready(function() {
+    
     console.log("document Llistat Info Estacions preparat")
     $("section").removeClass("container").addClass("container-fluid")
 
     const socket = io();
+    console.log("socket 1:\n", socket)
 
     let comptadorIPs = 0
     let totalIPs = 0
     let comptadorRegistres = 0
     let dataInici, dataFinal 
 
-    $("#btnStart").on( "click", function() {
-        dataInici= new Date()
-
-        console.log("rangsIPCDIR", $("#rangIPs").val())
-        $("#taulaLlistat tbody tr").remove('tr')
-        socket.emit('arranca_processos', $("#rangIPs").val());
-        comptadorIPs = 0
-        comptadorRegistres=0
         
-        $("#progres").css("width", "2em")
-        .attr("aria-valuenow", "0%")
-        .text("(0 / 0) 0%")
-        .addClass( "progress-bar-animated progress-bar-striped");
-        
-        $("#comptador").html( `${comptadorRegistres}` )
+    socket.on('connect', () => {
+        $("#btnStart").on( "click", function() {
+            dataInici= new Date()
 
-    })
+            console.log("rangsIPCDIR", $("#rangIPs").val())
+            $("#taulaLlistat tbody tr").remove('tr')
 
+            console.log("socket 2:\n", socket)
+            console.log('✅ ¡Conexión exitosa con el servidor! ID de socket:', socket.id);
+            console.log( socket.emit('arranca_proces_info_estacions', $("#rangIPs").val()) );
+            
+            console.log("S'hauria d'haver executat el EMIT")
+            comptadorIPs = 0
+            comptadorRegistres=0
+            
+            $("#progres").css("width", "2em")
+            .attr("aria-valuenow", "0%")
+            .text("(0 / 0) 0%")
+            .removeClass("bg-success")
+            .addClass( "progress-bar-animated progress-bar-striped");
+            
+            $("#comptador").html( `${comptadorRegistres}` )
+                
+        })
+    });
+            
 
 
 
@@ -57,8 +68,6 @@
                 <td scope="col">${arr[7]}</td>
                 <td scope="col">${arr[8]}</td>
                 <td scope="col">${arr[9]}</td>
-                <td scope="col">${arr[10]}</td>
-                <td scope="col">${arr[11]}</td>
             </tr>
             `
 
@@ -90,7 +99,8 @@
             difTemps = diferenciaTemps( dataInici, dataFinal)
             $("#progres")
             .text("FINAL! en " + difTemps)
-            .removeClass( "progress-bar-animated progress-bar-striped" );
+            .removeClass( "progress-bar-animated progress-bar-striped" )
+            .addClass("bg-success");
         }
         
 
@@ -98,6 +108,16 @@
 
 
 
+    // socket.on('connect', () => {
+    //     console.log('✅ ¡Conexión exitosa con el servidor! ID de socket:', socket.id);
+    // });
+
+
+    socket.on('connect_error', (err) => {
+        console.error('❌ Error de conexión:', err);
+    });
+
+    
     const diferenciaTemps = function( dataInici, dataFinal){
         let segundosTotals = Math.abs(dataFinal - dataInici) / 1000;
         let segundos = segundosTotals % 60
@@ -149,9 +169,9 @@
                 <th scope="col">Hostname</th>
                 <th scope="col">Usuari</th>
                 <th scope="col">Model</th>
-                <th scope="col">NS_CPU</th>
+                <!-- <th scope="col">NS_CPU</th> -->
                 <th scope="col">NS_Monit</th>
-                <th scope="col">srvNFS</th>
+                <!-- <th scope="col">srvNFS</th> -->
                 <th scope="col">mac</th>
                 <th scope="col">Speed</th>
                 <th scope="col">paquets</th>
