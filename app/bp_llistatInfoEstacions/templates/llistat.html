@@ -91,7 +91,7 @@
         $("#comptador").html( comptadorRegistres )
         $("#progres").css("width", percentatge).attr("aria-valuenow", percentatge).text(`(${comptadorIPs} / ${totalIPs}) ${percentatge}`);
         // console.log( `${comptadorIPs} / ${totalIPs}` )
-        
+
         if (totalIPs == comptadorIPs){
             dataFinal = new Date()
             // console.log( "DataInici:", dataInici )
@@ -118,18 +118,33 @@
     });
 
     
-    const diferenciaTemps = function( dataInici, dataFinal){
-        let segundosTotals = Math.abs(dataFinal - dataInici) / 1000;
-        let segundos = segundosTotals % 60
-        let minutos = Math.floor(segundosTotals / 60);
-        segundos %= 60;
-        let horas = Math.floor(minutos / 60);
-        minutos %= 60;
-        let resultado = [
-            ("0" + horas).substr(-2),
-            ("0" + minutos).substr(-2),
-            ("0" + segundos).substr(-2)
+    const diferenciaTemps = function( d1, d2){
+        console.log("Estic a la funcio DIFERENCIATEMPS!!", d1, d2 )
+
+        const diferenciaMs = d2 - d1;
+        console.log( "diferenciaMS:", diferenciaMs )
+
+        const segonsTotals = Math.floor(diferenciaMs / 1000)
+        console.log( "\nsegonsTotals:" , segonsTotals )
+
+        const minutsTotals = Math.floor(segonsTotals / 60);
+        console.log( "\nminutsTotals:" , minutsTotals )
+        const segonsRestants = segonsTotals % 60
+        console.log("segonsRestants:", segonsRestants)
+
+        const horesTotals = Math.floor( minutsTotals / 60)
+        console.log("\nhoresTotals:", horesTotals)
+        const minutsRestants = horesTotals % 60
+        console.log("minutsRestants:", minutsRestants)
+
+
+        const resultado = [
+            horesTotals.toString().padStart(2,"0"),
+            minutsTotals.toString().padStart(2,"0"),
+            segonsRestants.toString().padStart(2,"0"),
         ].join(":");
+
+        console.log("resultado:", resultado)
         return resultado        
     }
 

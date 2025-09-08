@@ -26,26 +26,30 @@
 		console.log(cmdSeleccionat);
 
 		switch ( cmdSeleccionat ) {
-			case "ps aux | grep -i 'xxx'":
+			case "ps aux | grep -i 'xxxx'":
 				$(".container").attr( "width", "100%" )
 				$("#feTitol").html("Nom del procés a filtrar:")
 				$("#feResposta").val("")
 				$('#idFinestraEmergent').modal('show');
 				break
-			case "kill xxx":
+			case "kill xxxx":
 				$("#feTitol").html("PID del procés a matar:")
 				$("#feResposta").val("")
 				$('#idFinestraEmergent').modal('show');
 				break
 			case "ps auxf":
 				$(".container").attr( "width", "100%" )
+				enviarCmd( cmdSeleccionat)
 				break
 			case "chown -R xxxx /home/xxxx":
 				$("#feTitol").html("Numero treballador:")
 				$("#feResposta").val("")
 				$('#idFinestraEmergent').modal('show');
 				break
-
+			case "opcioTraceroute":
+				cmdSeleccionat = "timeout 30 traceroute 192.168.8.252"		//192.168.8.252 es el servidor des d'on s'executa la app 'Utilitats'
+				enviarCmd( cmdSeleccionat)
+				break
 			default:
 				enviarCmd( cmdSeleccionat)
 		}
@@ -83,7 +87,7 @@
 			url: "/getInfoEstacio",
 			dataType: "json",
 			contentType: 'application/json',
-			data: JSON.stringify({ cmd: cmdSeleccionat, host: $("#hostname").val() })
+			data: JSON.stringify({ cmd: cmd, host: $("#hostname").val() })
 		})
 		.done(function( response ) {
 					console.log("response", response)
@@ -211,6 +215,15 @@
 				</div>
 			</div>
 			<div class="form-control">Velocitat MBPS</div>
+		</div>
+
+		<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<div class="input-group-text">
+					<input type="radio" name="grup1" value="opcioTraceroute" aria-label="Radio button for following text input">
+				</div>
+			</div>
+			<div class="form-control">Traceroute 192.168.8.252</div>
 		</div>
 
 		<div class="input-group input-group-sm">
@@ -381,12 +394,12 @@
       </div>
       <div class="modal-body">
 
-				<div class="input-group mb-3">
-					<span class="input-group-text" id="basic-addon1">
-					<i class="fa fa-question"></i>
-					</span>
-					<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
-				</div>				
+		<div class="input-group mb-3">
+			<span class="input-group-text" id="basic-addon1">
+			<i class="fa fa-question"></i>
+			</span>
+			<input id="feResposta" type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" autofocus>
+		</div>				
 
       </div>
       <div class="modal-footer">

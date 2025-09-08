@@ -29,6 +29,7 @@ $( document ).ready(function() {
       $('#totalTR').html( totalFiles )
       
       $("#btnStart").prop("disabled", false);
+      $("#btnTraceroute").prop("disabled", false);
     });
 
   })
@@ -41,9 +42,8 @@ $( document ).ready(function() {
     $(this).prop("disabled", true);
     $("#btnStop").prop("disabled", false);
     $("#seleccionar").prop("disabled", true);
-    
+    $("#btnTraceroute").prop("disabled", true);
   })
-  
   
   
   $("#btnStop").on( "click", function() {
@@ -51,24 +51,58 @@ $( document ).ready(function() {
     $(this).prop("disabled", true);
     $("#btnStart").prop("disabled", false);
     $("#seleccionar").prop("disabled", false);
+    $("#btnTraceroute").prop("disabled", false);
   })
   
+
+  $("#btnTraceroute").on( "click", function() {
+    socket.emit('arranca_traceroute');
+  })
+
+
   $( window ).on( "beforeunload", function() {
     // alert( "event UNDOLAD!!" )
     // console.log( "event UNLOAD" )
     socket.emit('parar_pings');
-} );
+  } );
   
   $("#btnStop").prop("disabled", true);
   $("#btnStart").prop("disabled", true);  
+  $("#btnTraceroute").prop("disabled", true);  
 
   socket.on('connect', function(){
     
     socket.on('recepcioDades', function(dadesRebudes) {
         console.log("dadesRebudes", dadesRebudes )
+        dadesRebudes.valor = dadesRebudes.valor.replaceAll("\n", "<br/>")
+
         $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').html(dadesRebudes.valor)
-        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("background-color", (dadesRebudes.valor == 'KO') ? 'red' : 'white')
-        $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("color", (dadesRebudes.valor == 'KO') ? 'white' : 'black')
+        
+        
+        if ( dadesRebudes.accio == "traceroute" ){
+          $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "font-family", "Monospace")
+          $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "font-size", "12px")
+          
+          if (! dadesRebudes.valor.startsWith("Latencia Ok") ){
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "color", "red")
+          } else {
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "color", "black")
+          }
+
+        } else {
+          
+          $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "font-family", "Arial")
+          $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "font-size", "1rem")
+          $('#taula tbody tr:eq('+ dadesRebudes.fila +') td:eq(2)').css( "color", "black")
+          if (dadesRebudes.valor == 'KO' ){
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("background-color", 'red')
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("color", 'white')
+          } else {
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("background-color", 'white')
+            $('#taula tbody tr:eq('+ dadesRebudes.fila +')').css("color", 'black')
+          }
+        }
+
     })
 
   })
@@ -88,7 +122,7 @@ $( document ).ready(function() {
 
 
 
-<div class='row mb-3'>
+<div class='row justify-content-around mb-3'>
   <div class='col'>
     <select id="seleccionar" class="form-control" >
       <option disabled selected value> -- seleccionar una opció -- </option>
@@ -104,10 +138,20 @@ $( document ).ready(function() {
     </select>
   </div>
   <div class='col'>
-    <button id="btnStart" type="button" class="btn btn-success">Start</button>
-    <button id="btnStop" type="button" class="btn btn-danger">Stop</button>
+    <div class="row justify-content-center" >
+      <div class="row align-items-center">
+        <div class="col">Pings:</div>
+      </div>
+      <button id="btnStart" type="button" class="btn btn-success mx-2">Start</button>
+      <button id="btnStop" type="button" class="btn btn-danger">Stop</button>
+    </div>
+  </div>
+  <div class="col">
+    <button id="btnTraceroute" type="button" class="btn btn-secondary">Traceroute</button>
   </div>
 </div>
+
+
 
 
 

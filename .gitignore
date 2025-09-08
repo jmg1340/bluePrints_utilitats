@@ -13,7 +13,7 @@
 !proves.csv
 
 
-# carpetes varies
+# carpetes i fitxers varios
 Cache/
 CachedData/
 CachedExtensionVSIXs/
@@ -43,7 +43,9 @@ code.lock
 languagepacks.json
 logs/
 machineid
-
+DIPS
+DIPS-wal
+CachedConfigurations/
 
 
 
