@@ -4,6 +4,8 @@
 <script>
   $( document ).ready(function() {
     console.log("document InfoEstacio preparat")
+	$("section").removeClass("container").addClass("container-fluid")
+
 
 	$("#hostname").focus()
 
@@ -26,7 +28,7 @@
 		console.log(cmdSeleccionat);
 
 		switch ( cmdSeleccionat ) {
-			case "ps aux | grep -i 'xxxx'":
+			case "ps auxf | grep -i 'xxxx'":
 				$(".container").attr( "width", "100%" )
 				$("#feTitol").html("Nom del procés a filtrar:")
 				$("#feResposta").val("")
@@ -115,7 +117,7 @@
 {% block content %}
 
 <div class="row mt-4 " style="height: 400px;">
-	<div class="col col-4 border-right">
+	<div class="col col-3 border-right">
 	
 		
 		<!-- IP O HOSTNAME -->
@@ -217,14 +219,14 @@
 			<div class="form-control">Velocitat MBPS</div>
 		</div>
 
-		<div class="input-group input-group-sm">
+		<!-- <div class="input-group input-group-sm">
 			<div class="input-group-prepend">
 				<div class="input-group-text">
 					<input type="radio" name="grup1" value="opcioTraceroute" aria-label="Radio button for following text input">
 				</div>
 			</div>
 			<div class="form-control">Traceroute 192.168.8.252</div>
-		</div>
+		</div> -->
 
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
@@ -319,7 +321,7 @@
 		<div class="input-group input-group-sm">
 			<div class="input-group-prepend">
 				<div class="input-group-text">
-					<input type="radio" name="grup1" value="ps aux | grep -i 'xxxx'" aria-label="Radio button for following text input">
+					<input type="radio" name="grup1" value="ps auxf | grep -i 'xxxx'" aria-label="Radio button for following text input">
 				</div>
 			</div>
 			<div class="form-control">Filtrar procés per nom</div>

@@ -72,15 +72,17 @@ def eliminar( user, srv ):
 			oProcesCompletat = subprocess.run(ssh_cmd1, shell=True, capture_output=True, text=True, check=True)
 			print(f"oPC.returncode:  {oProcesCompletat.returncode}")
 	except subprocess.CalledProcessError as e:
+		stdout_decodificado = oProcesCompletat.stdout.decode('utf-8', errors='replace')
+		stderr_decodificado = oProcesCompletat.stderr.decode('utf-8', errors='replace')
 		
 		if e.returncode == 2:
-			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{e.stdout}"
+			return f"\tNO EXISTEIX la carpeta: /export/home/{user} al servidor {srv} \n\n\t{stdout_decodificado}"
 		else:
 			# return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]"
-			return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]"
+			return f"No s'ha pogut executar el comandament:<br/> [ {stderr_decodificado} ]<br/> [ Return code: {e.returncode} ]"
 	
-	except:
-		return "Error intern del servidor al verificar perfil"
+	except Exception as err:
+		return f"Error intern del servidor al verificar perfil <br>{ err }"
 
 
 
@@ -89,16 +91,32 @@ def eliminar( user, srv ):
 	
 	try:
 		oProcesCompletat2 = subprocess.run(ssh_cmd,  shell=True, capture_output=True, text=True, check=True)
+
+		# Si el comando tiene éxito, la salida suele estar vacía.
+		# Puedes decodificar y mostrar la salida si es necesario.
+		stdout_decodificado = oProcesCompletat2.stdout.decode('utf-8', errors='replace')
+		stderr_decodificado = oProcesCompletat2.stderr.decode('utf-8', errors='replace')
+
+		if stdout_decodificado:
+			print("Salida estándar:", stdout_decodificado)
+		if stderr_decodificado:
+			print("Salida de error:", stderr_decodificado)
+
+
 		if oProcesCompletat2.returncode == 0:
-				return f"\tPerfil '{user}' ELIMINAT del servidor {srv}"
+			return f"\tPerfil '{user}' ELIMINAT del servidor {srv}"
 		else:
-				return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:\n\n\t{oProcesCompletat.stdout}"
+			return f"\tNO S'HA POGUT ELIMINAR EL PERFIL '{user}' del servidor {srv}:<br/><br/>{stdout_decodificado}<br/><br/>{stderr_decodificado}"
 
 	except subprocess.CalledProcessError as e:
+		# Si el comando devuelve un código de salida de error, se lanzará esta excepción.
+		# Decodificamos la salida de error para poder leerla.
+		stdout_decodificado = e.stdout.decode('utf-8', errors='replace')
+		stderr_decodificado = e.stderr.decode('utf-8', errors='replace')
 		# return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]<br/> [ Command: {e.cmd} ]" 
-		return f"No s'ha pogut executar el comandament:<br/> [ {e.stderr} ]<br/> [ Return code: {e.returncode} ]" 
-	except:
-		return "Error intern del servidor al eliminar perfil" 
+		return f"No s'ha pogut executar el comandament:<br/> [ {stderr_decodificado} ]<br/> [ Return code: {e.returncode} ]" 
+	except Exception as err:
+		return f"Error intern del servidor al eliminar perfil: {err}" 
 
 
 

@@ -60,6 +60,9 @@ def create_app():
     from app.bp_marcadors import marcadors
     app.register_blueprint(marcadors)
 
+    from app.bp_llistatInfoTelefons import llistatTelefons
+    app.register_blueprint(llistatTelefons)
+
 
 
   @app.route('/menu')

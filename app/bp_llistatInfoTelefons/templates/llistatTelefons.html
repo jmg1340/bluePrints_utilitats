@@ -7,8 +7,8 @@
 <script>
   $( document ).ready(function() {
     
-    console.log("document Llistat Info Estacions preparat")
-    $("section").removeClass("container").addClass("container-fluid")
+    console.log("document Llistat Info Telefons preparat")
+    // $("section").removeClass("container").addClass("container-fluid")
 
     const socket = io();
     console.log("socket 1:\n", socket)
@@ -28,7 +28,7 @@
 
             console.log("socket 2:\n", socket)
             console.log('✅ ¡Conexión exitosa con el servidor! ID de socket:', socket.id);
-            console.log( socket.emit('arranca_proces_info_estacions', $("#rangIPs").val()) );
+            console.log( socket.emit('arranca_proces_info_telefons', $("#rangIPs").val()) );
             
             console.log("S'hauria d'haver executat el EMIT")
             comptadorIPs = 0
@@ -53,21 +53,16 @@
         totalIPs = getTotalIPs
     })
 
-    socket.on('recepcioDades', function(arr) {
+    socket.on('recepcioDadesTelefons', function(obj) {
         // console.log("dadesRebudes", arr )
-        if (arr != ""){
+        if (obj["port_80_open"]){
             const construccioTR = `
             <tr>
-                <td scope="col">${arr[0]}</td>
-                <td scope="col">${arr[1]}</td>
-                <td scope="col">${arr[2]}</td>
-                <td scope="col">${arr[3]}</td>
-                <td scope="col">${arr[4]}</td>
-                <td scope="col">${arr[5]}</td>
-                <td scope="col">${arr[6]}</td>
-                <td scope="col">${arr[7]}</td>
-                <td scope="col">${arr[8]}</td>
-                <td scope="col">${arr[9]}</td>
+                <td scope="col">${obj.ip}</td>
+                <td scope="col">${obj.serial_number}</td>
+                <td scope="col">${obj.host_name}</td>
+                <td scope="col">${obj.phone_directory}</td>
+                <td scope="col">${obj.model}</td>
             </tr>
             `
 
@@ -156,19 +151,19 @@
 
 {% block content %}
 
-<!-- IP O HOSTNAME -->
+<!-- IP de xarxa telefons -->
 <div class="input-group mb-3">
     <span class="input-group-text" id="basic-addon1">
-    <i id="vnc" class="fa fa-desktop"></i>
+    <i id="vnc" class="fa fa-phone"></i>
     </span>
-    <input id="rangIPs" value="192.168.8.0/24" type="text" class="form-control" placeholder="Rang IPs format CIDR" style="max-width: 200px">
+    <input id="rangIPs" value="192.168.81.0/24" type="text" class="form-control" placeholder="Rang IPs format CIDR" style="max-width: 200px">
     <div class="input-group-append">
         <button class="btn btn-primary" type="button" id="btnStart">Start</button>
     </div>
 </div>
 
 
-<div>Estacions trobades: <span id="comptador"></span> </div>
+<div>Telèfons trobats: <span id="comptador"></span> </div>
 <div class="progress">
     <div id="progres"class="progress-bar progress-bar-info active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
         (0 / 0) 0%
@@ -180,18 +175,11 @@
     <table class="table table-sm table-bordered" id="taulaLlistat" style="font-size: 12px; font-family:monospace,'Courier New', Courier">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">target</th>
-                <th scope="col">Hostname</th>
-                <th scope="col">Usuari</th>
+                <th scope="col">IP</th>
+                <th scope="col">NS</th>
+                <th scope="col">HostName</th>
+                <th scope="col">Ext</th>
                 <th scope="col">Model</th>
-                <!-- <th scope="col">NS_CPU</th> -->
-                <th scope="col">NS_Monit</th>
-                <!-- <th scope="col">srvNFS</th> -->
-                <th scope="col">mac</th>
-                <th scope="col">Speed</th>
-                <th scope="col">paquets</th>
-                <th scope="col">Connectat a</th>
-                <th scope="col">Port</th>
             </tr>
         </thead>
         <tbody>
