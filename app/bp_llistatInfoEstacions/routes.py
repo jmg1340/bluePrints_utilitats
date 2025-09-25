@@ -49,6 +49,7 @@ def recullInformacio(ip): # <--- 3. Ya no es 'async def'
             socketioApp.emit('recepcioDades', "")
             # Puedes decidir si emitir algo en caso de error
         else:
+            servidorNFS = objHost.getServidorNFS()
             usuari = objHost.getUsuari()
             mac_paquets = objHost.getIpMac()
             speed = objHost.getSpeed()
@@ -58,6 +59,7 @@ def recullInformacio(ip): # <--- 3. Ya no es 'async def'
 
             arr = [
                 str(ip),
+                servidorNFS,
                 nomHost,
                 usuari or "",
                 getInfoPc[1] or "",  # model

@@ -90,6 +90,15 @@ class Host:
     
 
 
+  def getServidorNFS( self ):
+    resultat = fn.obtenirInfo( self.host, "/bin/cat /proc/mounts | /bin/grep nfs | /usr/bin/head -n 1 | /usr/bin/cut -d ':' -f 1")
+    if resultat != None: 
+      return resultat
+    else:
+      return "--"
+
+
+
   def getSpeed( self ):
     resultat = fn.obtenirInfo( self.host, "ethtool eth0" )
     resultatRe = re.search("Speed.*\n", resultat)
