@@ -57,11 +57,14 @@ def create_app():
     from app.bp_llistatInfoEstacions import llistatEstacions
     app.register_blueprint(llistatEstacions)
 
-    from app.bp_marcadors import marcadors
-    app.register_blueprint(marcadors)
+    # from app.bp_marcadors import marcadors
+    # app.register_blueprint(marcadors)
 
     from app.bp_llistatInfoTelefons import llistatTelefons
     app.register_blueprint(llistatTelefons)
+
+    from app.bp_estatTelefons import estatTelefons
+    app.register_blueprint(estatTelefons, url_prefix='/estatTelefons')
 
 
 

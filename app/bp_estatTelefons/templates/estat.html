@@ -1,0 +1,144 @@
+{% extends "plantillaBase.html" %}
+
+{% block jquery %}
+
+<script>
+  $( document ).ready(function() {
+     $("section").removeClass("container").addClass("container-fluid")
+  });  
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+
+    <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="estatTelfs-tab" data-toggle="tab" data-target="#estatTelfs" type="button" role="tab" aria-controls="estatTelfs" aria-selected="true">Estat Telèfons</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="logs-tab" data-toggle="tab" data-target="#logs" type="button" role="tab" aria-controls="logs" aria-selected="false">Log</button>
+        </li>
+    </ul>
+
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="estatTelfs" role="tabpanel" aria-labelledby="estatTelfs-tab">
+
+            <!-- Estilos personalizados -->
+            <link rel="stylesheet" href="{{ url_for('estatTelefons.static', filename='estilos.css') }}">
+
+            <div class="row justify-content-center">
+                <div class="col-7">
+           
+                    <div class="row align-items-center mb-3">
+                        <div class="col-3">
+                            Última actualització 'estado_telefonos.json': <span id="dataUltimaModificacio" class="text-danger"></span>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="buscador" class="form-control" placeholder="Buscar por extensión, IP, hostname, etc....">
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <div class="col">TOTAL: <span id="total"></span></div>
+                                <div class="col"><span class="estado-conexion conectado"></span>OK: <span id="totalOK"></span></div>
+                                <div class="col"><span class="estado-conexion desconectado"></span>KO: <span id="totalKO"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="row mb-3">
+                    </div> -->
+
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" style="width: 100px;">Estado</th>
+                                <th scope="col" class="ordenable" data-columna="extension">Extensión</th>
+                                <th scope="col">IP Actual</th>
+                                <th scope="col">Hostname</th>
+                                <th scope="col">Modelo</th>
+                                <th scope="col">Descripción</th>
+                                <!-- <th scope="col">Historial de Cambios</th> -->
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-telefonos">
+                            <!-- Las filas se generarán dinámicamente con JavaScript -->
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+        
+        <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            <!-- Estilos personalizados -->
+            <!-- <link rel="stylesheet" href="{{ url_for('estatTelefons.static', filename='estilos_logs.css') }}"> -->
+            
+            <div class="row justify-content-center">
+                <div class="col-6">
+
+                    <div class="row my-3 align-items-center">
+                        <div class="col-md-6">
+                            <p class="mb-0"><strong>Última actualización 'logs.json':</strong> <span id="lastModified" class="text-danger"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar...">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="taulaLogs" class="table table-striped table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Estado</th>
+                                    <th>Extensión</th>
+                                    <th>Descripción</th>
+                                    <th>IP Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+            
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- JQuery -->
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
+    <!-- Bootstrap 4 JS -->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> -->
+    <!-- Scripts personalizados -->
+    <script src="{{url_for('estatTelefons.static', filename='scriptEstado.js')}}"></script>
+    <script src="{{url_for('estatTelefons.static', filename='scripts_logs.js')}}"></script>
+
+
+{% endblock %}
+
